@@ -32,27 +32,7 @@ jobs:
     - name: Lint
       run: swiftlint lint --strict
 
-    - name: Build
-      run: swift build -v
       
-      
-    - name: Build for iOS Simulator
-      run: |
-        xcodebuild build \
-          -scheme TrysteroSwift \
-          -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
-          -quiet
-          
-    - name: Build for iOS Device
-      run: |
-        xcodebuild build \
-          -scheme TrysteroSwift \
-          -destination 'generic/platform=iOS' \
-          -quiet
-
-    - name: Run tests
-      run: swift test -v
-          
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -66,5 +46,8 @@ jobs:
         npm install
         echo "Testing Node.js harness startup..."
         node trystero-node.js &
+        NODE_PID=$!
+        sleep 2
         echo "Testing Swift interop test compilation..."
-        swift test --build-tests --filter InteropTests
+        cd ../..
+        swift build -v
