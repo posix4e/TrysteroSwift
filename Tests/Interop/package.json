@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node trystero-node.js",
+    "test:interop": "node test-runner.js",
+    "test:protocol": "node -e \"console.log('Node.js using appId: trystero, roomId: swift-interop-test')\"",
     "install-deps": "npm install"
   },
   "dependencies": {
