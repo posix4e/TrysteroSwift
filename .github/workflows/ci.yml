@@ -73,7 +73,7 @@ jobs:
       run: |
         xcodebuild build \
           -scheme TrysteroSwift \
-          -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+          -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
           -quiet
           
     - name: Build for iOS Device

@@ -20,18 +20,15 @@ jobs:
       with:
         xcode-version: latest-stable
         
-    - name: Install Swift-DocC
+    - name: Build Documentation with xcodebuild
       run: |
-        # Swift-DocC is included with Xcode 13.3+
-        echo "Swift-DocC available via xcodebuild docbuild"
+        xcodebuild docbuild \
+          -scheme TrysteroSwift \
+          -destination 'generic/platform=macOS' \
+          -derivedDataPath ./build
         
-    - name: Build Documentation
-      run: |
-        swift package generate-documentation \
-          --target TrysteroSwift \
-          --output-path ./docs \
-          --transform-for-static-hosting \
-          --hosting-base-path TrysteroSwift
+        # Find and copy documentation archive
+        find ./build -name "*.doccarchive" -exec cp -R {} ./docs \;
           
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
