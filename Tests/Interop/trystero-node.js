@@ -1,6 +1,10 @@
 #!/usr/bin/env node
+import WebSocket from 'ws'
 import {joinRoom} from 'trystero'
 import {RTCPeerConnection} from 'node-datachannel/polyfill'
+
+// Set up WebSocket polyfill for Node.js environment
+global.WebSocket = WebSocket
 
 const ROOM_ID = 'swift-interop-test'
 const RELAY_URLS = ['wss://relay.damus.io', 'wss://nos.lol']
