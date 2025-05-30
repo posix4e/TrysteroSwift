@@ -82,3 +82,60 @@ jobs:
           -scheme TrysteroSwift \
           -destination 'generic/platform=iOS' \
           -quiet
+          
+  quick-interop:
+    name: Quick Interop Check
+    runs-on: macos-14
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: Tests/Interop/package.json
+        
+    - name: Cache Swift packages
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+          
+    - name: Install Node.js dependencies
+      working-directory: Tests/Interop
+      run: npm ci --only=production
+      
+    - name: Build Swift package
+      run: swift build
+      
+    - name: Test Node.js harness startup
+      working-directory: Tests/Interop
+      run: |
+        echo "Testing Node.js harness startup..."
+        timeout 30 node trystero-node.js &
+        NODE_PID=$!
+        sleep 5
+        
+        if kill -0 $NODE_PID 2>/dev/null; then
+          echo "✅ Node.js harness started successfully"
+          kill -SIGTERM $NODE_PID
+        else
+          echo "❌ Node.js harness failed to start"
+          exit 1
+        fi
+        
+    - name: Test Swift compilation with interop tests
+      run: |
+        echo "Testing Swift interop test compilation..."
+        swift test --build-tests --filter InteropTests

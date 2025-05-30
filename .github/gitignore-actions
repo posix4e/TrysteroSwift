@@ -1,0 +1,33 @@
+# GitHub Actions specific gitignore patterns
+# These patterns help optimize CI caching and artifact management
+
+# Node.js dependencies (only for interop tests)
+Tests/Interop/node_modules/
+Tests/Interop/package-lock.json
+Tests/Interop/*.log
+
+# Test reports and artifacts
+Tests/Interop/interop-test-report.txt
+Tests/Interop/*.log
+
+# Temporary files created during CI
+/tmp/swift_test_output.log
+*.tmp
+*.temp
+
+# Build artifacts that don't need to be cached
+.build/debug/
+.build/release/
+.build/arm64-apple-macosx/
+.build/x86_64-apple-macosx/
+
+# Xcode derived data
+DerivedData/
+build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes

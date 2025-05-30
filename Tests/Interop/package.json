@@ -1,0 +1,19 @@
+{
+  "name": "trystero-swift-interop-test",
+  "version": "1.0.0",
+  "description": "Interoperability test between TrysteroSwift and Trystero.js",
+  "main": "trystero-node.js",
+  "type": "module",
+  "scripts": {
+    "test": "node trystero-node.js",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "trystero": "^0.19.2",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.10.0"
+  }
+}
