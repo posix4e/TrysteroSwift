@@ -170,7 +170,6 @@ class TrysteroNostrClient: NostrClientDelegate {
             print("🔍 [Swift Debug] Nostr notice from \(relayUrl): \(notice)")
         default:
             print("🔍 [Swift Debug] Other message from \(relayUrl): \(message)")
-            break
         }
     }
     
@@ -200,13 +199,11 @@ class TrysteroNostrClient: NostrClientDelegate {
         var isForOurRoom = false
         var foundTopics: [String] = []
         
-        for tag in event.tags {
-            if tag.id == "x" {
-                if let topicValue = tag.otherInformation.first {
-                    foundTopics.append(topicValue)
-                    if topicValue == expectedTopicHashes.truncatedHash {
-                        isForOurRoom = true
-                    }
+        for tag in event.tags where tag.id == "x" {
+            if let topicValue = tag.otherInformation.first {
+                foundTopics.append(topicValue)
+                if topicValue == expectedTopicHashes.truncatedHash {
+                    isForOurRoom = true
                 }
             }
         }

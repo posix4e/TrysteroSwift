@@ -60,17 +60,17 @@ public class TrysteroRoom {
             // For now, just log that we discovered a peer
             print("🔍 [Swift Debug] Discovered peer: \(fromPeer)")
             
-        case .offer(_):
+        case .offer:
             print("🔍 [Swift Debug] Received WebRTC offer from \(fromPeer)")
-            // TODO: Handle WebRTC offer
+            // WebRTC offer handling will be implemented in future versions
             
-        case .answer(_):
+        case .answer:
             print("🔍 [Swift Debug] Received WebRTC answer from \(fromPeer)")
-            // TODO: Handle WebRTC answer
+            // WebRTC answer handling will be implemented in future versions
             
-        case .iceCandidate(_, _, _):
+        case .iceCandidate:
             print("🔍 [Swift Debug] Received ICE candidate from \(fromPeer)")
-            // TODO: Handle ICE candidate
+            // ICE candidate handling will be implemented in future versions
         }
     }
     

@@ -18,7 +18,7 @@ Add TrysteroSwift to your Swift package:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yourusername/TrysteroSwift.git", from: "1.0.0")
+    .package(url: "https://github.com/posix4e/TrysteroSwift.git", from: "1.0.0")
 ]
 ```
 

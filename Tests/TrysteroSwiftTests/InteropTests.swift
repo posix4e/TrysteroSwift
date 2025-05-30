@@ -44,10 +44,9 @@ final class InteropTests: XCTestCase {
         print("🎉 Comprehensive interoperability test completed successfully!")
     }
     
-    
     // MARK: - Test Phase Methods
     
-    private func verifyProtocolCompatibility() async throws {
+    func verifyProtocolCompatibility() async throws {
         print("  🔧 Testing topic hash generation compatibility...")
         
         // Create a TrysteroNostrClient to test the internal hash generation
@@ -64,7 +63,7 @@ final class InteropTests: XCTestCase {
         try await Task.sleep(nanoseconds: 500_000_000) // 500ms
     }
     
-    private func testPeerDiscoveryAndConnection() async throws {
+    func testPeerDiscoveryAndConnection() async throws {
         print("  🔗 Establishing Swift peer connection...")
         
         // Create room configuration
@@ -89,7 +88,7 @@ final class InteropTests: XCTestCase {
         print("  ✅ Peer discovery successful!")
     }
     
-    private func testMessageExchangePatterns() async throws {
+    func testMessageExchangePatterns() async throws {
         print("  📤 Testing initial greeting exchange...")
         
         // Send initial message
@@ -120,7 +119,7 @@ final class InteropTests: XCTestCase {
         try await performMultipleMessageExchange()
     }
     
-    private func testAdvancedScenarios() async throws {
+    func testAdvancedScenarios() async throws {
         // Test direct peer messaging if we have peers
         if !connectedPeers.isEmpty {
             print("  🎯 Testing direct peer messaging...")

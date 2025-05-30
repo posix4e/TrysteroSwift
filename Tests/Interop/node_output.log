@@ -1,0 +1,1415 @@
+
+> trystero-swift-interop-test@1.0.0 test
+> node trystero-node.js
+
+🟢 Starting Trystero Node.js test harness...
+📡 Connecting to relays: wss://relay.damus.io, wss://nos.lol
+🏠 Room ID: swift-interop-test
+📋 Room configuration: {
+  "appId": "trystero",
+  "relays": [
+    "wss://relay.damus.io",
+    "wss://nos.lol"
+  ]
+}
+🔍 [Node.js Debug] WebSocket connecting to: wss://ftp.halifax.rwth-aachen.de/nostr
+🔍 [Node.js Debug] WebSocket connecting to: wss://nostr.mom
+🔍 [Node.js Debug] WebSocket connecting to: wss://relay.snort.social
+🔍 [Node.js Debug] WebSocket connecting to: wss://multiplexer.huszonegy.world
+🔍 [Node.js Debug] WebSocket connecting to: wss://relay.verified-nostr.com
+🏠 Joined room successfully
+🔍 [Node.js Debug] Room object inspection:
+🔍 [Node.js Debug]   Room keys: [
+  'makeAction',   'leave',
+  'ping',         'getPeers',
+  'addStream',    'removeStream',
+  'addTrack',     'removeTrack',
+  'replaceTrack', 'onPeerJoin',
+  'onPeerLeave',  'onPeerStream',
+  'onPeerTrack'
+]
+🚀 Node.js test harness is ready and waiting for Swift peers...
+💡 Send SIGINT (Ctrl+C) to gracefully shutdown
+🔍 [Node.js Debug] WebSocket opened: wss://relay.verified-nostr.com
+🔍 [Node.js Debug] Sending subscription to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   Subscription: ["REQ","Ck1frm4S7mcz8O4fnvtBxanHTxc9OYXiwIfvxkqbd9GxXqAfdcYcpV1G6oOWE12w",{"kinds":[22904],"since":1748640365,"#x":["42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]}]
+🔍 [Node.js Debug] Sending subscription to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   Subscription: ["REQ","qDBzyPJdzbGJXNlcIC9zzkQyhfWmd6oQIzfx90WZms6fZZNv4Rs99G8tlwrZbfsP",{"kinds":[22755],"since":1748640365,"#x":["3n1j6qu403w1863p6qi3lx3w3a2r5s33451j"]}]
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: ec1f143e58dc7dfacdccde2fcf947a19e7a14857bd87b2e94673327e594b50ed
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] WebSocket opened: wss://multiplexer.huszonegy.world
+🔍 [Node.js Debug] Sending subscription to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   Subscription: ["REQ","XFmaNgbLY36eUIFjoz0Dz8bEY5lru5IJJELrkXbUT80HePGQMYVgiIleX6ZWCy3l",{"kinds":[22904],"since":1748640366,"#x":["42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]}]
+🔍 [Node.js Debug] Sending subscription to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   Subscription: ["REQ","1VMf5myMvv6i5f5tAs3ga9Z2R1nD6ezmec7HL7LdmHROB1jzXQLSVOuUhktt7lxT",{"kinds":[22755],"since":1748640366,"#x":["3n1j6qu403w1863p6qi3lx3w3a2r5s33451j"]}]
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] WebSocket opened: wss://nostr.mom
+🔍 [Node.js Debug] Sending subscription to wss://nostr.mom:
+🔍 [Node.js Debug]   Subscription: ["REQ","LNDoqpO6oIQcCZRZlpzzmJTamDV7LrmTVxrgzIQx87jQSvA4sxbaQRpEI0yd7N0w",{"kinds":[22904],"since":1748640366,"#x":["42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]}]
+🔍 [Node.js Debug] Sending subscription to wss://nostr.mom:
+🔍 [Node.js Debug]   Subscription: ["REQ","0OJ4R4dKvQwGtr2BU0q6WAQWaExU8ezzcUoTuTMc0md0aOq91gyBtsZqpDP5KCoQ",{"kinds":[22755],"since":1748640366,"#x":["3n1j6qu403w1863p6qi3lx3w3a2r5s33451j"]}]
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] WebSocket opened: wss://ftp.halifax.rwth-aachen.de/nostr
+🔍 [Node.js Debug] Sending subscription to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   Subscription: ["REQ","niPMAJoFHGfEwtao5aavAoW7G0dNuur27X9ZTNY0R1q5mgCPVYJU7kxG8WpXCWzs",{"kinds":[22904],"since":1748640366,"#x":["42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]}]
+🔍 [Node.js Debug] Sending subscription to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   Subscription: ["REQ","dxeDTdtcLmVVLG6gVXNwLQANZvxh3m7qLcvwASrVRrm0s0N6U65c6tfrJ2ubIk5W",{"kinds":[22755],"since":1748640366,"#x":["3n1j6qu403w1863p6qi3lx3w3a2r5s33451j"]}]
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] WebSocket opened: wss://relay.snort.social
+🔍 [Node.js Debug] Sending subscription to wss://relay.snort.social:
+🔍 [Node.js Debug]   Subscription: ["REQ","6QCCvPL83eOvjsCaCBIDTvtypcEfdPLhFu4bRMD6ujaIpX87oHUhIcXV1qsXNU1U",{"kinds":[22904],"since":1748640366,"#x":["42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]}]
+🔍 [Node.js Debug] Sending subscription to wss://relay.snort.social:
+🔍 [Node.js Debug]   Subscription: ["REQ","9SkjBO7FbdGYyb5CVidVPkj79pwttPv8q7Dijn6QDfG7EdYbYpahmw0Bw1vTKpzy",{"kinds":[22755],"since":1748640366,"#x":["3n1j6qu403w1863p6qi3lx3w3a2r5s33451j"]}]
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: d376a12528ec183080b29430223da024018c3922e8aaf82dacc1e2ef1ac5189e
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: ed7c891f27a76455c2503184048bb2a4afd893ccd1066e3fbbaca633e1f237ea
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: fc9d12d4446dc0d2d9432a1e3f1666e1128e1d89404f4f175b9219bb74f27a27
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: fc9d12d4446dc0d2d9432a1e3f1666e1128e1d89404f4f175b9219bb74f27a27
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 9fb028e810d22d3496ac098ed917e73a33954a7fcfd6878cccc7bcd1301e297a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 9fb028e810d22d3496ac098ed917e73a33954a7fcfd6878cccc7bcd1301e297a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 9fb028e810d22d3496ac098ed917e73a33954a7fcfd6878cccc7bcd1301e297a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 005cb4cba82dadb25ef2e377a259e319f90de1bdfb02388bae143e1c5a102d20
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 005cb4cba82dadb25ef2e377a259e319f90de1bdfb02388bae143e1c5a102d20
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 9fb028e810d22d3496ac098ed917e73a33954a7fcfd6878cccc7bcd1301e297a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 9fb028e810d22d3496ac098ed917e73a33954a7fcfd6878cccc7bcd1301e297a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 005cb4cba82dadb25ef2e377a259e319f90de1bdfb02388bae143e1c5a102d20
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 005cb4cba82dadb25ef2e377a259e319f90de1bdfb02388bae143e1c5a102d20
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 724c3e4b9359c72554cf246154308b57f65718b9ddd8e9c528905715e7ba82bc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: a04e4d675766608b32f62c59d56aab58079d3934655eab1859358040256ca796
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 9d2645483f68803a43ba9f4f9f571833a63e4b69d941b608c38e1ebc3b3508cc
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 246c99240f13f1eba3200f3b3c2f204a63fa0795dfe4db5344631fcaf8a58e62
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 246c99240f13f1eba3200f3b3c2f204a63fa0795dfe4db5344631fcaf8a58e62
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 35a85896d39d958652f6970b26de19fb48e324461f1161e91bbb9017b0f6551a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 35a85896d39d958652f6970b26de19fb48e324461f1161e91bbb9017b0f6551a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 35a85896d39d958652f6970b26de19fb48e324461f1161e91bbb9017b0f6551a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 25e7b0327dcf2c45588206de77723344cd7fe6675bc8182b10c3160e958a5aeb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 35a85896d39d958652f6970b26de19fb48e324461f1161e91bbb9017b0f6551a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 25e7b0327dcf2c45588206de77723344cd7fe6675bc8182b10c3160e958a5aeb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 35a85896d39d958652f6970b26de19fb48e324461f1161e91bbb9017b0f6551a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 25e7b0327dcf2c45588206de77723344cd7fe6675bc8182b10c3160e958a5aeb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 25e7b0327dcf2c45588206de77723344cd7fe6675bc8182b10c3160e958a5aeb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: ef1603f78d6f7ebf3333007a8d7e64ed0e7cafa2ea7d393c4d8d823da73903cd
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 75ce0bcce04fa9dcade6b95c1f7660e315976860ca897c79e4887769fb79f4a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: fbec771ff4cc80635c7a0736fd155e397f7ab7ee90c4e9bb3e93d50cf3e8db58
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: af5536e7dc5edd3815bbb92e5ca50dff88a26d2ba15923345cad4bafa9916f85
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: af5536e7dc5edd3815bbb92e5ca50dff88a26d2ba15923345cad4bafa9916f85
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 224f7d8c6ea28f0fc4c510068e62402d1221c9e05215199263cc969addc0e6ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 224f7d8c6ea28f0fc4c510068e62402d1221c9e05215199263cc969addc0e6ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 224f7d8c6ea28f0fc4c510068e62402d1221c9e05215199263cc969addc0e6ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 77cf81654720ca536c35aa06610836ece9f16428d766bb3336c107f3ccc72275
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 77cf81654720ca536c35aa06610836ece9f16428d766bb3336c107f3ccc72275
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 224f7d8c6ea28f0fc4c510068e62402d1221c9e05215199263cc969addc0e6ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 224f7d8c6ea28f0fc4c510068e62402d1221c9e05215199263cc969addc0e6ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 77cf81654720ca536c35aa06610836ece9f16428d766bb3336c107f3ccc72275
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 77cf81654720ca536c35aa06610836ece9f16428d766bb3336c107f3ccc72275
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 788d50dacd038b3929f689619acbd8bfea4fe5d09c9e594c480bc39ae0004b95
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: bbbb50e7161e4af93e1dd42f3791c1c399b20f28aad0de18deb14178cff8e7ec
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 71d4818d348d841192659b3b60a820dd3e136c1e795fe391e2dfe87b0a618ef1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 344776058d45d39eb95357fcb79d74e0e0e1d82ba14e6b049c0dfe4e4bae87eb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 344776058d45d39eb95357fcb79d74e0e0e1d82ba14e6b049c0dfe4e4bae87eb
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 6990ea7ef7f170f0b0e1b5e550416dcde62b7187544dca554ebeb228bc4bbf4f
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 6990ea7ef7f170f0b0e1b5e550416dcde62b7187544dca554ebeb228bc4bbf4f
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 6990ea7ef7f170f0b0e1b5e550416dcde62b7187544dca554ebeb228bc4bbf4f
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 7f1a51a8553a7c80825c6b8cb0c857465446c82b2f3c2e596dcac2d9653b6751
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 7f1a51a8553a7c80825c6b8cb0c857465446c82b2f3c2e596dcac2d9653b6751
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 6990ea7ef7f170f0b0e1b5e550416dcde62b7187544dca554ebeb228bc4bbf4f
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 6990ea7ef7f170f0b0e1b5e550416dcde62b7187544dca554ebeb228bc4bbf4f
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 7f1a51a8553a7c80825c6b8cb0c857465446c82b2f3c2e596dcac2d9653b6751
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+/Users/posix4e/.profile: line 5: 99011 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$@"
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 7f1a51a8553a7c80825c6b8cb0c857465446c82b2f3c2e596dcac2d9653b6751
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: b5430dfe0ba4026c2aaddcc787a765ee1bac9ffc519cfef587775714b795a298
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: aec32efeb60fe3b7ce42d69071d53ee3883448cb7f7d98802443b135215c3923
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 215b590eab45495f29ee1627db41a5940c0da7ef6ce3f615cf356a8b6b8e2ba1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 215b590eab45495f29ee1627db41a5940c0da7ef6ce3f615cf356a8b6b8e2ba1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: babafc2a69ddc8f421eb5b3c28a8526b52b80d5d7aebb320c327b158b5ce2e31
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: babafc2a69ddc8f421eb5b3c28a8526b52b80d5d7aebb320c327b158b5ce2e31
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: babafc2a69ddc8f421eb5b3c28a8526b52b80d5d7aebb320c327b158b5ce2e31
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: d895b9d086f4b58c4ab67306acd4994f126d5a0d5f56c5faf3ce7d61d5c230a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: babafc2a69ddc8f421eb5b3c28a8526b52b80d5d7aebb320c327b158b5ce2e31
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: d895b9d086f4b58c4ab67306acd4994f126d5a0d5f56c5faf3ce7d61d5c230a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: babafc2a69ddc8f421eb5b3c28a8526b52b80d5d7aebb320c327b158b5ce2e31
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: d895b9d086f4b58c4ab67306acd4994f126d5a0d5f56c5faf3ce7d61d5c230a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: d895b9d086f4b58c4ab67306acd4994f126d5a0d5f56c5faf3ce7d61d5c230a2
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: c9cd6e2d1b0dfc34ecf9f6c5b1679d338275d96f5a682554279fae150418e6d1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 85df68de659b1cda08ba18c6db24aaf81b0dfc127d0a5cf30562a846157e5d37
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: c7caec9eb8ce307641fb69f9c1a59297504b7db078f0757e7812514349189e34
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: c7caec9eb8ce307641fb69f9c1a59297504b7db078f0757e7812514349189e34
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: d06fb38ac0a565ba4eeeed1815de453bd88b49ad542569982a066825cf9a6128
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: d06fb38ac0a565ba4eeeed1815de453bd88b49ad542569982a066825cf9a6128
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: d06fb38ac0a565ba4eeeed1815de453bd88b49ad542569982a066825cf9a6128
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 8268528edd3b727e875bbcf3c411edf4e8318dc5ffce2bdfcb370e1891063c51
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 8268528edd3b727e875bbcf3c411edf4e8318dc5ffce2bdfcb370e1891063c51
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: d06fb38ac0a565ba4eeeed1815de453bd88b49ad542569982a066825cf9a6128
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: d06fb38ac0a565ba4eeeed1815de453bd88b49ad542569982a066825cf9a6128
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 8268528edd3b727e875bbcf3c411edf4e8318dc5ffce2bdfcb370e1891063c51
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 8268528edd3b727e875bbcf3c411edf4e8318dc5ffce2bdfcb370e1891063c51
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 4c2ce4a63eb6c4b63ea025fdee443db94be3f085103fece3d61a1752fc8f97f7
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: ba1d0351548587f42664442851457ddfe443bc31f2f1f6643afd367cc4783243
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 08876eb4bbe5cf80cc2c01cfe1b06f59e1d944cca2f956e413332b359ebd0bc1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 08876eb4bbe5cf80cc2c01cfe1b06f59e1d944cca2f956e413332b359ebd0bc1
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: c3993c4805aa92849240a0874b0be5221c4ce91e2a0c6dd30fc2d19b3f783041
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: c3993c4805aa92849240a0874b0be5221c4ce91e2a0c6dd30fc2d19b3f783041
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: c3993c4805aa92849240a0874b0be5221c4ce91e2a0c6dd30fc2d19b3f783041
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 5ec5c24c88df4cfc1ef057d28242613a05a2c63372836899b882314bffd2af2a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: c3993c4805aa92849240a0874b0be5221c4ce91e2a0c6dd30fc2d19b3f783041
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 5ec5c24c88df4cfc1ef057d28242613a05a2c63372836899b882314bffd2af2a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: c3993c4805aa92849240a0874b0be5221c4ce91e2a0c6dd30fc2d19b3f783041
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 5ec5c24c88df4cfc1ef057d28242613a05a2c63372836899b882314bffd2af2a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 5ec5c24c88df4cfc1ef057d28242613a05a2c63372836899b882314bffd2af2a
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: 8b28a714409dc5487c11df930131dc25480114a33c5449a7e2125d04701aad28
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+📊 Node.js Status: 0 peers connected, 0 messages received
+🔍 [Node.js Debug] Room configuration:
+🔍 [Node.js Debug]   appId: 'trystero'
+🔍 [Node.js Debug]   roomId: 'swift-interop-test'
+🔍 [Node.js Debug]   Expected Swift hashtag: 'trystero-swift-interop-test'
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.verified-nostr.com:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://ftp.halifax.rwth-aachen.de/nostr:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://multiplexer.huszonegy.world:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://nostr.mom:
+🔍 [Node.js Debug]   ID: 2f647196e24786281056eb36184d7803e38dba15eacbbddbe079c6938139cbe8
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Sending Nostr event to wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: e41b37a9acc09c4c2f005b3a6dfb7c6b3ee7034ff4011b1fb126a25ea2bba69d
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
+🔍 [Node.js Debug] Received Nostr event from wss://relay.snort.social:
+🔍 [Node.js Debug]   ID: e41b37a9acc09c4c2f005b3a6dfb7c6b3ee7034ff4011b1fb126a25ea2bba69d
+🔍 [Node.js Debug]   Kind: 22904
+🔍 [Node.js Debug]   Pubkey: 9a514c2d038e044a00ecd26cf3a5394d535d15b007371643d9baec3281d602f8
+🔍 [Node.js Debug]   Tags: [["x","42125x5x4j1j6o6v5s2e1z3w3q4tx82x4g5k6"]]
+🔍 [Node.js Debug]   Content: {"peerId":"ORxCFMBjm9D2t9Na7gCy"}
