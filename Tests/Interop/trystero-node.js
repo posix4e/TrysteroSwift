@@ -13,8 +13,9 @@ console.log('🟢 Starting Trystero Node.js test harness...')
 console.log(`📡 Connecting to relays: ${RELAY_URLS.join(', ')}`)
 console.log(`🏠 Room ID: ${ROOM_ID}`)
 
-// Create room configuration (removed appId to match Swift implementation)
+// Create room configuration (using minimal appId to match Swift default behavior)
 const roomConfig = {
+  appId: '',  // Empty string - matches Swift's likely default
   rtcPolyfill: RTCPeerConnection,
   relays: RELAY_URLS
 }
