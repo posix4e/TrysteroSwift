@@ -3,8 +3,60 @@ import WebSocket from 'ws'
 import {joinRoom} from 'trystero'
 import {RTCPeerConnection} from 'node-datachannel/polyfill'
 
-// Set up WebSocket polyfill for Node.js environment
-global.WebSocket = WebSocket
+// Set up WebSocket polyfill for Node.js environment with debugging
+const OriginalWebSocket = WebSocket
+
+class DebugWebSocket extends OriginalWebSocket {
+  constructor(url, protocols) {
+    super(url, protocols)
+    console.log(`🔍 [Node.js Debug] WebSocket connecting to: ${url}`)
+    
+    this.addEventListener('open', () => {
+      console.log(`🔍 [Node.js Debug] WebSocket opened: ${url}`)
+    })
+    
+    this.addEventListener('message', (event) => {
+      try {
+        const message = JSON.parse(event.data)
+        if (message[0] === 'EVENT') {
+          const eventData = message[2]
+          console.log(`🔍 [Node.js Debug] Received Nostr event from ${url}:`)
+          console.log(`🔍 [Node.js Debug]   ID: ${eventData.id}`)
+          console.log(`🔍 [Node.js Debug]   Kind: ${eventData.kind}`)
+          console.log(`🔍 [Node.js Debug]   Pubkey: ${eventData.pubkey}`)
+          console.log(`🔍 [Node.js Debug]   Tags: ${JSON.stringify(eventData.tags)}`)
+          console.log(`🔍 [Node.js Debug]   Content: ${eventData.content}`)
+        }
+      } catch (e) {
+        // Not JSON or not a Nostr event, ignore
+      }
+    })
+    
+    const originalSend = this.send
+    this.send = function(data) {
+      try {
+        const message = JSON.parse(data)
+        if (message[0] === 'EVENT') {
+          const eventData = message[1]
+          console.log(`🔍 [Node.js Debug] Sending Nostr event to ${url}:`)
+          console.log(`🔍 [Node.js Debug]   ID: ${eventData.id}`)
+          console.log(`🔍 [Node.js Debug]   Kind: ${eventData.kind}`)
+          console.log(`🔍 [Node.js Debug]   Pubkey: ${eventData.pubkey}`)
+          console.log(`🔍 [Node.js Debug]   Tags: ${JSON.stringify(eventData.tags)}`)
+          console.log(`🔍 [Node.js Debug]   Content: ${eventData.content}`)
+        } else if (message[0] === 'REQ') {
+          console.log(`🔍 [Node.js Debug] Sending subscription to ${url}:`)
+          console.log(`🔍 [Node.js Debug]   Subscription: ${JSON.stringify(message)}`)
+        }
+      } catch (e) {
+        // Not JSON, still send
+      }
+      return originalSend.call(this, data)
+    }
+  }
+}
+
+global.WebSocket = DebugWebSocket
 
 const ROOM_ID = 'swift-interop-test'
 const RELAY_URLS = ['wss://relay.damus.io', 'wss://nos.lol']
@@ -26,13 +78,32 @@ console.log('📋 Room configuration:', JSON.stringify(roomConfig, null, 2))
 const room = joinRoom(roomConfig, ROOM_ID)
 console.log('🏠 Joined room successfully')
 
+// Debug: Try to inspect the room object to understand internal workings
+console.log('🔍 [Node.js Debug] Room object inspection:')
+console.log('🔍 [Node.js Debug]   Room keys:', Object.keys(room))
+
+// If we can access internal room properties, log them
+if (room._nostrTopic) {
+  console.log('🔍 [Node.js Debug]   Nostr topic:', room._nostrTopic)
+}
+if (room._appId) {
+  console.log('🔍 [Node.js Debug]   Internal appId:', room._appId)
+}
+if (room._roomId) {
+  console.log('🔍 [Node.js Debug]   Internal roomId:', room._roomId)
+}
+
 // Track connected peers
 const peers = new Set()
 let messageCount = 0
 
-// Send periodic presence announcements
+// Send periodic presence announcements and debug info
 setInterval(() => {
   console.log(`📊 Node.js Status: ${peers.size} peers connected, ${messageCount} messages received`)
+  console.log(`🔍 [Node.js Debug] Room configuration:`)
+  console.log(`🔍 [Node.js Debug]   appId: '${roomConfig.appId}'`)
+  console.log(`🔍 [Node.js Debug]   roomId: '${ROOM_ID}'`)
+  console.log(`🔍 [Node.js Debug]   Expected Swift hashtag: '${roomConfig.appId}-${ROOM_ID}'`)
 }, 5000)
 
 // Set up data channel
