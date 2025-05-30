@@ -27,7 +27,6 @@ final class InteropTests: XCTestCase {
         
         // Create room configuration
         let config = RoomConfig(
-            appId: "trystero-swift-interop",
             relays: relays
         )
         
@@ -38,7 +37,10 @@ final class InteropTests: XCTestCase {
         setupEventHandlers()
         
         // Join the room
-        try await room!.join()
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try await room.join()
         print("✅ Swift peer joined room: \(roomId)")
         
         // Wait for Node.js peer connection
@@ -54,9 +56,14 @@ final class InteropTests: XCTestCase {
         ]
         
         let messageData = try JSONSerialization.data(withJSONObject: initialMessage)
-        let messageString = String(data: messageData, encoding: .utf8)!
+        guard let messageString = String(data: messageData, encoding: .utf8) else {
+            throw InteropTestError.invalidResponse
+        }
         
-        try room!.send(messageString)
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try room.send(messageData)
         print("📤 Sent initial greeting message")
         
         // Wait for response
@@ -73,7 +80,7 @@ final class InteropTests: XCTestCase {
     }
     
     /// Test ping-pong message exchange
-    private func testPingPongExchange() async throws {
+    func testPingPongExchange() async throws {
         print("🏓 Testing ping-pong exchange...")
         
         let pingMessage = [
@@ -84,9 +91,14 @@ final class InteropTests: XCTestCase {
         ]
         
         let messageData = try JSONSerialization.data(withJSONObject: pingMessage)
-        let messageString = String(data: messageData, encoding: .utf8)!
+        guard let messageString = String(data: messageData, encoding: .utf8) else {
+            throw InteropTestError.invalidResponse
+        }
         
-        try room!.send(messageString)
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try room.send(messageData)
         print("📤 Sent ping message")
         
         // Wait for pong response
@@ -95,36 +107,41 @@ final class InteropTests: XCTestCase {
     }
     
     /// Test multiple rapid message exchanges
-    private func testMultipleMessageExchange() async throws {
+    func testMultipleMessageExchange() async throws {
         print("📚 Testing multiple message exchange...")
         
         let messageCount = 5
         var sentMessages: [String] = []
         
-        for i in 1...messageCount {
+        for index in 1...messageCount {
             let message = [
                 "type": "test_message",
                 "from": "trystero-swift",
                 "timestamp": "\(Date().timeIntervalSince1970)",
-                "messageNumber": "\(i)",
-                "content": "Test message #\(i) from Swift"
+                "messageNumber": "\(index)",
+                "content": "Test message #\(index) from Swift"
             ]
             
             let messageData = try JSONSerialization.data(withJSONObject: message)
-            let messageString = String(data: messageData, encoding: .utf8)!
+            guard let messageString = String(data: messageData, encoding: .utf8) else {
+                throw InteropTestError.invalidResponse
+            }
             
-            try room!.send(messageString)
+            guard let room = self.room else {
+                throw InteropTestError.noConnection
+            }
+            try room.send(messageData)
             sentMessages.append(messageString)
-            print("📤 Sent message #\(i)")
+            print("📤 Sent message #\(index)")
             
             // Small delay between messages
             try await Task.sleep(nanoseconds: 200_000_000) // 200ms
         }
         
         // Wait for all echo responses
-        for i in 1...messageCount {
+        for index in 1...messageCount {
             try await waitForMessage(containing: "echo", timeout: 5.0)
-            print("✅ Received echo response #\(i)")
+            print("✅ Received echo response #\(index)")
         }
         
         print("✅ All \(messageCount) messages exchanged successfully")
@@ -136,13 +153,15 @@ final class InteropTests: XCTestCase {
         
         // Join room and wait for peer
         let config = RoomConfig(
-            appId: "trystero-swift-interop",
             relays: relays
         )
         
         room = try Trystero.joinRoom(config: config, roomId: roomId)
         setupEventHandlers()
-        try await room!.join()
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try await room.join()
         
         try await waitForPeerConnection(timeout: 30.0)
         
@@ -160,9 +179,14 @@ final class InteropTests: XCTestCase {
         ]
         
         let messageData = try JSONSerialization.data(withJSONObject: directMessage)
-        let messageString = String(data: messageData, encoding: .utf8)!
+        guard let messageString = String(data: messageData, encoding: .utf8) else {
+            throw InteropTestError.invalidResponse
+        }
         
-        try room!.send(messageString, to: targetPeer)
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try room.send(messageData, to: targetPeer)
         print("📤 Sent direct message to \(targetPeer)")
         
         // Wait for response
@@ -174,68 +198,72 @@ final class InteropTests: XCTestCase {
     func testRoomPersistenceAndReconnection() async throws {
         print("🔄 Testing room persistence and reconnection...")
         
-        // Initial connection
-        let config = RoomConfig(
-            appId: "trystero-swift-interop",
-            relays: relays
-        )
+        let config = RoomConfig(relays: relays)
         
-        room = try Trystero.joinRoom(config: config, roomId: roomId)
-        setupEventHandlers()
-        try await room!.join()
+        // Initial connection and send message
+        try await performInitialConnection(config: config)
+        try await sendTestMessage(type: "before_disconnect", message: "Message before disconnection")
         
-        try await waitForPeerConnection(timeout: 30.0)
+        // Disconnect and reconnect
+        try await simulateDisconnectAndReconnect(config: config)
         
-        // Send message before disconnection
-        let beforeMessage = [
-            "type": "before_disconnect",
-            "from": "trystero-swift",
-            "timestamp": "\(Date().timeIntervalSince1970)",
-            "message": "Message before disconnection"
-        ]
-        
-        let messageData = try JSONSerialization.data(withJSONObject: beforeMessage)
-        let messageString = String(data: messageData, encoding: .utf8)!
-        
-        try room!.send(messageString)
-        print("📤 Sent message before disconnection")
-        
-        // Simulate disconnection
-        await room!.leave()
-        print("🔌 Disconnected from room")
-        
-        // Clear state
-        connectedPeers.removeAll()
-        receivedMessages.removeAll()
-        
-        // Reconnect
-        room = try Trystero.joinRoom(config: config, roomId: roomId)
-        setupEventHandlers()
-        try await room!.join()
-        print("🔌 Reconnected to room")
-        
-        // Wait for peer reconnection
-        try await waitForPeerConnection(timeout: 30.0)
-        
-        // Send message after reconnection
-        let afterMessage = [
-            "type": "after_reconnect",
-            "from": "trystero-swift",
-            "timestamp": "\(Date().timeIntervalSince1970)",
-            "message": "Message after reconnection"
-        ]
-        
-        let afterData = try JSONSerialization.data(withJSONObject: afterMessage)
-        let afterString = String(data: afterData, encoding: .utf8)!
-        
-        try room!.send(afterString)
-        print("📤 Sent message after reconnection")
-        
+        // Send message after reconnection and verify
+        try await sendTestMessage(type: "after_reconnect", message: "Message after reconnection")
         try await waitForMessage(containing: "echo", timeout: 10.0)
         print("✅ Successfully reconnected and exchanged messages")
     }
     
     // MARK: - Helper Methods
+    
+    private func performInitialConnection(config: RoomConfig) async throws {
+        room = try Trystero.joinRoom(config: config, roomId: roomId)
+        setupEventHandlers()
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try await room.join()
+        try await waitForPeerConnection(timeout: 30.0)
+    }
+    
+    private func sendTestMessage(type: String, message: String) async throws {
+        let messageDict = [
+            "type": type,
+            "from": "trystero-swift",
+            "timestamp": "\(Date().timeIntervalSince1970)",
+            "message": message
+        ]
+        
+        let messageData = try JSONSerialization.data(withJSONObject: messageDict)
+        guard let messageString = String(data: messageData, encoding: .utf8) else {
+            throw InteropTestError.invalidResponse
+        }
+        
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try room.send(messageData)
+        print("📤 Sent \(type) message")
+    }
+    
+    private func simulateDisconnectAndReconnect(config: RoomConfig) async throws {
+        guard let room = self.room else {
+            throw InteropTestError.noConnection
+        }
+        await room.leave()
+        print("🔌 Disconnected from room")
+        
+        connectedPeers.removeAll()
+        receivedMessages.removeAll()
+        
+        self.room = try Trystero.joinRoom(config: config, roomId: roomId)
+        setupEventHandlers()
+        guard let newRoom = self.room else {
+            throw InteropTestError.noConnection
+        }
+        try await newRoom.join()
+        print("🔌 Reconnected to room")
+        try await waitForPeerConnection(timeout: 30.0)
+    }
     
     private func setupEventHandlers() {
         room?.onPeerJoin { [weak self] peerId in

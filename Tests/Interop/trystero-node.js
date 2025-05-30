@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-
-import { joinRoom } from 'trystero'
+import {joinRoom} from 'trystero'
+import {RTCPeerConnection} from 'node-datachannel/polyfill'
 
 const ROOM_ID = 'swift-interop-test'
 const RELAY_URLS = ['wss://relay.damus.io', 'wss://nos.lol']
@@ -11,7 +11,7 @@ console.log(`🏠 Room ID: ${ROOM_ID}`)
 
 // Create room configuration
 const roomConfig = {
-  appId: 'trystero-swift-interop',
+  appId: 'trystero-swift-interop', rtcPolyfill: RTCPeerConnection,
   relays: RELAY_URLS
 }
 
@@ -21,6 +21,9 @@ const room = joinRoom(roomConfig, ROOM_ID)
 // Track connected peers
 const peers = new Set()
 let messageCount = 0
+
+// Set up data channel
+const [sendData, getData] = room.makeAction('data')
 
 // Event handlers
 room.onPeerJoin(peerId => {
@@ -35,7 +38,7 @@ room.onPeerJoin(peerId => {
     message: `Hello from Node.js! You are peer ${peers.size}`
   }
   
-  room.send(JSON.stringify(welcomeMessage), peerId)
+  sendData(JSON.stringify(welcomeMessage), peerId)
   console.log(`📤 Sent welcome message to ${peerId}`)
 })
 
@@ -44,7 +47,7 @@ room.onPeerLeave(peerId => {
   peers.delete(peerId)
 })
 
-room.onData((data, peerId) => {
+getData((data, peerId) => {
   messageCount++
   try {
     const message = JSON.parse(data)
@@ -59,7 +62,7 @@ room.onData((data, peerId) => {
       messageNumber: messageCount
     }
     
-    room.send(JSON.stringify(response), peerId)
+    sendData(JSON.stringify(response), peerId)
     console.log(`📤 Sent echo response to ${peerId}`)
     
     // If this is a ping, send a pong
@@ -71,7 +74,7 @@ room.onData((data, peerId) => {
           timestamp: Date.now(),
           pingTimestamp: message.timestamp
         }
-        room.send(JSON.stringify(pong), peerId)
+        sendData(JSON.stringify(pong), peerId)
         console.log(`🏓 Sent pong to ${peerId}`)
       }, 100)
     }
@@ -81,7 +84,7 @@ room.onData((data, peerId) => {
     
     // Send simple echo for non-JSON data
     const response = `Echo from Node.js: ${data}`
-    room.send(response, peerId)
+    sendData(response, peerId)
     console.log(`📤 Sent simple echo to ${peerId}`)
   }
 })
@@ -98,7 +101,7 @@ setInterval(() => {
       uptime: process.uptime()
     }
     
-    room.send(JSON.stringify(status))
+    sendData(JSON.stringify(status))
     console.log(`📊 Broadcast status update to ${peers.size} peers`)
   }
 }, 10000) // Every 10 seconds
@@ -115,7 +118,7 @@ process.on('SIGINT', async () => {
       message: 'Node.js peer is shutting down'
     }
     
-    room.send(JSON.stringify(goodbye))
+    sendData(JSON.stringify(goodbye))
     console.log('👋 Sent goodbye message to all peers')
   }
   
