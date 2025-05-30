@@ -15,6 +15,14 @@ class DebugWebSocket extends OriginalWebSocket {
       console.log(`🔍 [Node.js Debug] WebSocket opened: ${url}`)
     })
     
+    this.addEventListener('error', (error) => {
+      console.log(`🔍 [Node.js Debug] WebSocket error for ${url}: ${error.message || error}`)
+    })
+    
+    this.addEventListener('close', (event) => {
+      console.log(`🔍 [Node.js Debug] WebSocket closed for ${url}: ${event.code} ${event.reason}`)
+    })
+    
     this.addEventListener('message', (event) => {
       try {
         const message = JSON.parse(event.data)
@@ -58,7 +66,23 @@ class DebugWebSocket extends OriginalWebSocket {
 
 global.WebSocket = DebugWebSocket
 
+// Add global error handlers to prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Uncaught Exception:', error.message)
+  console.error('Stack trace:', error.stack)
+  // Don't exit immediately, give some time for cleanup
+  setTimeout(() => {
+    process.exit(1)
+  }, 1000)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason)
+  // Don't exit for unhandled rejections in this test environment
+})
+
 const ROOM_ID = 'swift-interop-test'
+// Use more reliable relays that are less likely to block CI runners
 const RELAY_URLS = ['wss://relay.damus.io', 'wss://nos.lol']
 
 console.log('🟢 Starting Trystero Node.js test harness...')
@@ -74,9 +98,15 @@ const roomConfig = {
 
 console.log('📋 Room configuration:', JSON.stringify(roomConfig, null, 2))
 
-// Join the room
-const room = joinRoom(roomConfig, ROOM_ID)
-console.log('🏠 Joined room successfully')
+// Join the room with error handling
+let room
+try {
+  room = joinRoom(roomConfig, ROOM_ID)
+  console.log('🏠 Joined room successfully')
+} catch (error) {
+  console.error('❌ Failed to join room:', error.message)
+  process.exit(1)
+}
 
 // Debug: Try to inspect the room object to understand internal workings
 console.log('🔍 [Node.js Debug] Room object inspection:')
