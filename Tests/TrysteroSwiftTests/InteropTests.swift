@@ -27,7 +27,8 @@ final class InteropTests: XCTestCase {
         
         // Create room configuration
         let config = RoomConfig(
-            relays: relays
+            relays: relays,
+            appId: "trystero"  // Match Node.js appId for interop
         )
         
         // Join the room
@@ -153,7 +154,8 @@ final class InteropTests: XCTestCase {
         
         // Join room and wait for peer
         let config = RoomConfig(
-            relays: relays
+            relays: relays,
+            appId: "trystero"  // Match Node.js appId for interop
         )
         
         room = try Trystero.joinRoom(config: config, roomId: roomId)
@@ -198,7 +200,7 @@ final class InteropTests: XCTestCase {
     func testRoomPersistenceAndReconnection() async throws {
         print("🔄 Testing room persistence and reconnection...")
         
-        let config = RoomConfig(relays: relays)
+        let config = RoomConfig(relays: relays, appId: "trystero")
         
         // Initial connection and send message
         try await performInitialConnection(config: config)

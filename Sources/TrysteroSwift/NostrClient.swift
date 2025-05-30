@@ -6,10 +6,12 @@ class TrysteroNostrClient: NostrClientDelegate {
     private let client: NostrClient
     private let relays: [String]
     private let keyPair: KeyPair
+    private let appId: String
     private var messageHandler: ((WebRTCSignal, String) -> Void)?
     
-    init(relays: [String]) throws {
+    init(relays: [String], appId: String = "") throws {
         self.relays = relays
+        self.appId = appId
         self.keyPair = try KeyPair()
         self.client = NostrClient()
         self.client.delegate = self
@@ -36,7 +38,9 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func publishSignal(_ signal: WebRTCSignal, roomId: String, targetPeer: String?) async throws {
         let content = try signal.toJSON()
-        var tags: [Tag] = [Tag(id: "h", otherInformation: "trystero-\(roomId)")]
+        // Create hashtag with appId for namespace compatibility with Trystero.js
+        let hashtag = appId.isEmpty ? "trystero-\(roomId)" : "\(appId)-\(roomId)"
+        var tags: [Tag] = [Tag(id: "h", otherInformation: hashtag)]
         if let targetPeer = targetPeer {
             tags.append(Tag(id: "p", otherInformation: targetPeer))
         }

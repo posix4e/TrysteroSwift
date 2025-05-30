@@ -10,9 +10,9 @@ public class TrysteroRoom {
     internal var peers: [String: RTCPeerConnection] = [:]
     private var dataChannels: [String: RTCDataChannel] = [:]
     
-    public init(roomId: String, relays: [String] = ["wss://relay.damus.io"]) throws {
+    public init(roomId: String, relays: [String] = ["wss://relay.damus.io"], appId: String = "") throws {
         self.roomId = roomId
-        self.nostrClient = try TrysteroNostrClient(relays: relays)
+        self.nostrClient = try TrysteroNostrClient(relays: relays, appId: appId)
         self.webRTCManager = WebRTCManager()
     }
     
