@@ -1,0 +1,42 @@
+{
+  "originHash" : "09316dfca68245c042cbff6bd901192160aa908673a1e86c3fdb293bd9a2a0d1",
+  "pins" : [
+    {
+      "identity" : "nostr",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Galaxoid-Labs/Nostr.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0581f42a90e00b5414cf6d3ab4b3f3d66b26cd0d"
+      }
+    },
+    {
+      "identity" : "nostrclient",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Galaxoid-Labs/NostrClient.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "4fdcb9169f3a910398131a9d843087a031d8e3bc"
+      }
+    },
+    {
+      "identity" : "swift-secp256k1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/21-DOT-DEV/swift-secp256k1.git",
+      "state" : {
+        "revision" : "9683e8e311c76d8114cd308b697dad2f9fc58fed",
+        "version" : "0.17.0"
+      }
+    },
+    {
+      "identity" : "webrtc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stasel/WebRTC.git",
+      "state" : {
+        "branch" : "release-M137",
+        "revision" : "baf462fbb684a64d2c4ff677e1039d2168d107fa"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -1,0 +1,28 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github.com/yourusername/"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "https://github.com/posix4e/TrysteroSwift/blob/main/"
+    }
+  ],
+  "httpStatusCodes": {
+    "400": "warn",
+    "401": "warn",
+    "403": "warn",
+    "404": "error",
+    "405": "warn",
+    "500": "error",
+    "502": "warn",
+    "503": "warn"
+  },
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206]
+}

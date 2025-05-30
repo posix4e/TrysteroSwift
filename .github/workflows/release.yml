@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: macos-14
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build and test
+      run: |
+        swift build -c release
+        swift test
+        
+    - name: Create Release Notes
+      id: release_notes
+      run: |
+        # Extract version from tag
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Create release notes
+        cat > release_notes.md << EOF
+        # TrysteroSwift v$VERSION
+        
+        ## Features
+        - Decentralized P2P communication using Nostr and WebRTC
+        - Room-based peer discovery and messaging
+        - Trystero-compatible API for Swift/iOS
+        
+        ## Installation
+        Add to your Swift package dependencies:
+        \`\`\`swift
+        .package(url: "https://github.com/posix4e/TrysteroSwift.git", from: "$VERSION")
+        \`\`\`
+        
+        ## Requirements
+        - iOS 13+ / macOS 14+
+        - Swift 6.1+
+        
+        See [README.md](https://github.com/posix4e/TrysteroSwift/blob/main/README.md) for usage examples.
+        EOF
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  build-matrix:
+    name: Build Matrix
+    runs-on: macos-14
+    strategy:
+      matrix:
+        platform: [iOS, macOS]
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build for ${{ matrix.platform }}
+      run: |
+        if [ "${{ matrix.platform }}" == "iOS" ]; then
+          xcodebuild build \
+            -scheme TrysteroSwift \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            -quiet
+        else
+          swift build -c release
+        fi
