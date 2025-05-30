@@ -13,18 +13,26 @@ console.log('🟢 Starting Trystero Node.js test harness...')
 console.log(`📡 Connecting to relays: ${RELAY_URLS.join(', ')}`)
 console.log(`🏠 Room ID: ${ROOM_ID}`)
 
-// Create room configuration
+// Create room configuration (removed appId to match Swift implementation)
 const roomConfig = {
-  appId: 'trystero-swift-interop', rtcPolyfill: RTCPeerConnection,
+  rtcPolyfill: RTCPeerConnection,
   relays: RELAY_URLS
 }
 
+console.log('📋 Room configuration:', JSON.stringify(roomConfig, null, 2))
+
 // Join the room
 const room = joinRoom(roomConfig, ROOM_ID)
+console.log('🏠 Joined room successfully')
 
 // Track connected peers
 const peers = new Set()
 let messageCount = 0
+
+// Send periodic presence announcements
+setInterval(() => {
+  console.log(`📊 Node.js Status: ${peers.size} peers connected, ${messageCount} messages received`)
+}, 5000)
 
 // Set up data channel
 const [sendData, getData] = room.makeAction('data')
