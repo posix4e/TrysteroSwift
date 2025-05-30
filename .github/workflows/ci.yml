@@ -54,19 +54,20 @@ jobs:
         console.log('Node.js using appId: trystero, roomId: swift-interop-test');
         "
         
-        cd ../.. && swift -e "
+        cd ../.. && swift -e '
         import Foundation
         import CryptoKit
-        let appId = \"trystero\"
-        let roomId = \"swift-interop-test\"
-        let topicPath = \"Trystero@\(appId)@\(roomId)\"
+        let appId = "trystero"
+        let roomId = "swift-interop-test"
+        let topicPath = "Trystero@\(appId)@\(roomId)"
         let data = Data(topicPath.utf8)
         let digest = Insecure.SHA1.hash(data: data)
-        let hash = digest.map { String(\$0, radix: 36) }.joined()
+        let hash = digest.map { String($0, radix: 36) }.joined()
         let truncated = String(hash.prefix(20))
         func strToNum(_ s: String, mod: Int) -> Int { var sum = 0; for c in s { sum += Int(c.asciiValue ?? 0) }; return sum % mod }
         let kind = 20000 + strToNum(hash, mod: 10000)
-        print(\"Swift generating: kind=\(kind), tag=[\\\\\\"x\\\\\\", \\\\\"\(truncated)\\\\\"]\")"
+        print("Swift generating: kind=\(kind), tag=[\"x\", \"\(truncated)\"]")
+        '
         cd Tests/Interop
         
         # Start Node.js harness with enhanced logging
