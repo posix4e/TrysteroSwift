@@ -4,12 +4,13 @@ import NostrClient
 import Nostr
 
 public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataChannelDelegate, @unchecked Sendable {
-    private let roomId: String
-    private let nostrClient: TrysteroNostrClient
+    internal let roomId: String
+    internal let nostrClient: TrysteroNostrClient
     private let webRTCManager: WebRTCManager
     internal var peers: [String: RTCPeerConnection] = [:]
-    private var dataChannels: [String: RTCDataChannel] = [:]
+    internal var dataChannels: [String: RTCDataChannel] = [:]
     private var pendingIceCandidates: [String: [RTCIceCandidate]] = [:]
+    internal var connectedPeers: Set<String> = []
     private var isJoined = false
     
     // Event handlers
@@ -35,6 +36,10 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         }
         
         try await nostrClient.connect()
+        
+        // Give relays time to establish connection
+        try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        
         try await nostrClient.subscribe(to: roomId)
         try await announcePresence()
         
@@ -103,27 +108,49 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     }
     
     private func sendToPeer(_ data: Data, peerId: String) throws {
-        guard let dataChannel = dataChannels[peerId] else {
+        guard connectedPeers.contains(peerId),
+              let dataChannel = dataChannels[peerId],
+              dataChannel.readyState == .open else {
             throw TrysteroError.peerNotConnected
         }
         let buffer = RTCDataBuffer(data: data, isBinary: true)
         dataChannel.sendData(buffer)
+        print("📤 [Swift Debug] Sent data to \(String(peerId.prefix(8)))...")
     }
     
     private func broadcast(_ data: Data) throws {
-        for (_, dataChannel) in dataChannels {
+        var sentCount = 0
+        for (peerId, dataChannel) in dataChannels {
+            guard connectedPeers.contains(peerId), dataChannel.readyState == .open else { continue }
             let buffer = RTCDataBuffer(data: data, isBinary: true)
             dataChannel.sendData(buffer)
+            sentCount += 1
+        }
+        print("📤 [Swift Debug] Broadcast data to \(sentCount) peers")
+    }
+    
+    internal func cleanupPeer(_ peerId: String) {
+        peers.removeValue(forKey: peerId)
+        dataChannels.removeValue(forKey: peerId)
+        pendingIceCandidates.removeValue(forKey: peerId)
+        
+        if connectedPeers.remove(peerId) != nil {
+            peerLeaveHandler?(peerId)
+            print("👋 [Swift Debug] Peer \(String(peerId.prefix(8)))... left room")
         }
     }
     
     private func closePeerConnections() {
-        for (_, peerConnection) in peers {
+        for (peerId, peerConnection) in peers {
             peerConnection.close()
+            if connectedPeers.remove(peerId) != nil {
+                peerLeaveHandler?(peerId)
+            }
         }
         peers.removeAll()
         dataChannels.removeAll()
         pendingIceCandidates.removeAll()
+        connectedPeers.removeAll()
     }
     
     // MARK: - WebRTC Signal Handlers
@@ -140,25 +167,39 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         
         peers[peerId] = peerConnection
         
-        // Create data channel
-        if let dataChannel = webRTCManager.createDataChannel(on: peerConnection, label: "data") {
-            dataChannel.delegate = self
-            dataChannels[peerId] = dataChannel
-            print("📡 [Swift Debug] Created data channel for \(peerId)")
-        }
+        // Track peer presence (before WebRTC connection completes)
+        connectedPeers.insert(peerId)
+        peerJoinHandler?(peerId)
+        print("✅ [Swift Debug] Peer \(String(peerId.prefix(8)))... joined room")
         
-        // Create and send offer
-        do {
-            let offer = try await webRTCManager.createOffer(for: peerConnection)
-            try await webRTCManager.setLocalDescription(offer, for: peerConnection)
+        // Only create offer if our peer ID is lexicographically smaller (prevents both sides offering)
+        let ourPeerId = nostrClient.keyPair.publicKey
+        let shouldCreateOffer = ourPeerId.localizedCompare(peerId) == .orderedAscending
+        
+        if shouldCreateOffer {
+            print("🤝 [Swift Debug] We'll create offer for \(peerId) (our ID: \(String(ourPeerId.prefix(8)))...)")
             
-            let signal = WebRTCSignal.offer(sdp: offer.sdp)
-            try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: peerId)
-            print("📤 [Swift Debug] Sent offer to \(peerId)")
-        } catch {
-            print("❌ [Swift Debug] Failed to create/send offer to \(peerId): \(error)")
-            peers.removeValue(forKey: peerId)
-            dataChannels.removeValue(forKey: peerId)
+            // Create data channel (only the offerer creates it)
+            if let dataChannel = webRTCManager.createDataChannel(on: peerConnection, label: "data") {
+                dataChannel.delegate = self
+                dataChannels[peerId] = dataChannel
+                print("📡 [Swift Debug] Created data channel for \(peerId)")
+            }
+            
+            // Create and send offer
+            do {
+                let offer = try await webRTCManager.createOffer(for: peerConnection)
+                try await webRTCManager.setLocalDescription(offer, for: peerConnection)
+                
+                let signal = WebRTCSignal.offer(sdp: offer.sdp)
+                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: peerId)
+                print("📤 [Swift Debug] Sent offer to \(peerId)")
+            } catch {
+                print("❌ [Swift Debug] Failed to create/send offer to \(peerId): \(error)")
+                cleanupPeer(peerId)
+            }
+        } else {
+            print("🤝 [Swift Debug] Waiting for offer from \(peerId) (their ID is smaller)")
         }
     }
     
@@ -209,6 +250,12 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
             return
         }
         
+        // Check if we're in the right state to receive an answer
+        guard peerConnection.signalingState == .haveLocalOffer else {
+            print("❌ [Swift Debug] Wrong signaling state for answer: \(peerConnection.signalingState)")
+            return
+        }
+        
         let remoteDescription = RTCSessionDescription(type: .answer, sdp: sdp)
         try await webRTCManager.setRemoteDescription(remoteDescription, for: peerConnection)
         
@@ -249,103 +296,6 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
             }
         } else {
             print("❌ [Swift Debug] No peer connection found for ICE candidate from \(peerId)")
-        }
-    }
-    
-    // MARK: - RTCPeerConnectionDelegate
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
-        print("🔗 [Swift Debug] Signaling state changed: \(stateChanged)")
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
-        print("📺 [Swift Debug] Media stream added")
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
-        print("📺 [Swift Debug] Media stream removed")
-    }
-    
-    public func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
-        print("🤝 [Swift Debug] Should negotiate")
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
-        print("🧊 [Swift Debug] ICE connection state changed: \(newState)")
-        
-        // Find peer ID for this connection
-        let peerId = peers.first { $0.value === peerConnection }?.key
-        
-        switch newState {
-        case .connected, .completed:
-            if let peerId = peerId {
-                print("✅ [Swift Debug] Peer \(peerId) connected")
-                peerJoinHandler?(peerId)
-            }
-        case .disconnected, .failed, .closed:
-            if let peerId = peerId {
-                print("❌ [Swift Debug] Peer \(peerId) disconnected")
-                peerLeaveHandler?(peerId)
-                peers.removeValue(forKey: peerId)
-                dataChannels.removeValue(forKey: peerId)
-                pendingIceCandidates.removeValue(forKey: peerId)
-            }
-        default:
-            break
-        }
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
-        print("🧊 [Swift Debug] ICE gathering state changed: \(newState)")
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
-        print("🧊 [Swift Debug] Generated ICE candidate")
-        
-        let peerId = peers.first { $0.value === peerConnection }?.key
-        guard let targetPeer = peerId else { return }
-        
-        let signal = WebRTCSignal.iceCandidate(
-            candidate: candidate.sdp,
-            sdpMid: candidate.sdpMid,
-            sdpMLineIndex: candidate.sdpMLineIndex
-        )
-        
-        Task {
-            do {
-                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: targetPeer)
-                print("📤 [Swift Debug] Sent ICE candidate to \(targetPeer)")
-            } catch {
-                print("❌ [Swift Debug] Failed to send ICE candidate: \(error)")
-            }
-        }
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
-        print("🧊 [Swift Debug] ICE candidates removed")
-    }
-    
-    public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
-        print("📡 [Swift Debug] Data channel opened: \(dataChannel.label)")
-        
-        let peerId = peers.first { $0.value === peerConnection }?.key
-        if let peerId = peerId {
-            dataChannel.delegate = self
-            dataChannels[peerId] = dataChannel
-        }
-    }
-    
-    // MARK: - RTCDataChannelDelegate
-    
-    public func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
-        print("📡 [Swift Debug] Data channel state changed: \(dataChannel.readyState)")
-    }
-    
-    public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
-        let peerId = dataChannels.first { $0.value === dataChannel }?.key
-        if let peerId = peerId {
-            print("📥 [Swift Debug] Received data from \(peerId)")
-            dataHandler?(buffer.data, peerId)
         }
     }
 }

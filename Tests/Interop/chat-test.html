@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrysteroSwift Chrome Chat Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .status.connecting { background: #fff3cd; color: #856404; }
+        
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+        .message.sent {
+            background: #007AFF;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.received {
+            background: #e5e5ea;
+            color: black;
+        }
+        .message.system {
+            background: #ff9500;
+            color: white;
+            text-align: center;
+            margin: 10px auto;
+            font-style: italic;
+        }
+        .message-meta {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        button:hover:not(:disabled) {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .connect-btn {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .peers {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 TrysteroSwift Chrome Chat Test</h1>
+        <p>Test real-time chat between Chrome and iOS using TrysteroSwift</p>
+        
+        <div id="status" class="status disconnected">
+            Status: Disconnected
+        </div>
+        
+        <div class="peers">
+            Connected peers: <span id="peer-count">0</span>
+        </div>
+        
+        <button id="connect-btn" class="connect-btn">Connect to Room</button>
+        
+        <div id="messages" class="messages">
+            <div class="message system">
+                <div>Click "Connect to Room" to start chatting</div>
+                <div class="message-meta">Room: swift-chat-test</div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type a message..." disabled>
+            <button id="send-btn" disabled>Send</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { joinRoom } from 'https://cdn.skypack.dev/trystero';
+        
+        const ROOM_ID = 'swift-chat-test';
+        const RELAYS = ['wss://relay.damus.io', 'wss://nos.lol'];
+        
+        let room = null;
+        let peers = new Set();
+        let messageCount = 0;
+        
+        // UI elements
+        const statusEl = document.getElementById('status');
+        const connectBtn = document.getElementById('connect-btn');
+        const messagesEl = document.getElementById('messages');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const peerCountEl = document.getElementById('peer-count');
+        
+        function updateStatus(status, className) {
+            statusEl.textContent = `Status: ${status}`;
+            statusEl.className = `status ${className}`;
+        }
+        
+        function updatePeerCount() {
+            peerCountEl.textContent = peers.size;
+        }
+        
+        function addMessage(text, type = 'received', sender = 'Unknown') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const timeStr = new Date().toLocaleTimeString();
+            const senderStr = type === 'sent' ? 'You' : sender;
+            
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="message-meta">${senderStr} • ${timeStr}</div>
+            `;
+            
+            messagesEl.appendChild(messageDiv);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+        
+        function addSystemMessage(text) {
+            addMessage(text, 'system', 'System');
+        }
+        
+        async function connectToRoom() {
+            try {
+                updateStatus('Connecting...', 'connecting');
+                connectBtn.disabled = true;
+                
+                const roomConfig = {
+                    appId: 'trystero',
+                    relays: RELAYS
+                };
+                
+                room = joinRoom(roomConfig, ROOM_ID);
+                console.log('🏠 Joined room successfully');
+                console.log('🔍 [Chrome Debug] Room object:', room);
+                console.log('🔍 [Chrome Debug] Expected hash for room:', ROOM_ID);
+                console.log('🔍 [Chrome Debug] With appId: trystero');
+                
+                // Set up data channel
+                const [sendData, getData] = room.makeAction('data');
+                
+                // Event handlers
+                room.onPeerJoin(peerId => {
+                    console.log(`✅ Peer joined: ${peerId}`);
+                    peers.add(peerId);
+                    updatePeerCount();
+                    addSystemMessage(`Peer joined: ${peerId.substring(0, 8)}...`);
+                    
+                    // Send welcome message
+                    const welcome = {
+                        type: 'chat',
+                        from: 'chrome-user',
+                        timestamp: Date.now(),
+                        message: 'Hello from Chrome! 🌐'
+                    };
+                    sendData(JSON.stringify(welcome), peerId);
+                });
+                
+                room.onPeerLeave(peerId => {
+                    console.log(`❌ Peer left: ${peerId}`);
+                    peers.delete(peerId);
+                    updatePeerCount();
+                    addSystemMessage(`Peer left: ${peerId.substring(0, 8)}...`);
+                });
+                
+                getData((data, peerId) => {
+                    messageCount++;
+                    console.log(`📥 Message ${messageCount} from ${peerId}:`, data);
+                    
+                    try {
+                        const message = JSON.parse(data);
+                        if (message.type === 'chat') {
+                            addMessage(message.message, 'received', 'Swift');
+                        } else {
+                            addMessage(data, 'received', 'Swift');
+                        }
+                    } catch (error) {
+                        // Not JSON, display as plain text
+                        addMessage(data, 'received', 'Swift');
+                    }
+                });
+                
+                // Store sendData function for sending messages
+                window.sendData = sendData;
+                
+                updateStatus('Connected', 'connected');
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                connectBtn.textContent = 'Disconnect';
+                connectBtn.disabled = false;
+                
+                addSystemMessage(`Connected to room: ${ROOM_ID}`);
+                
+            } catch (error) {
+                console.error('❌ Failed to connect:', error);
+                updateStatus(`Error: ${error.message}`, 'disconnected');
+                connectBtn.disabled = false;
+                addSystemMessage(`Failed to connect: ${error.message}`);
+            }
+        }
+        
+        function disconnectFromRoom() {
+            if (room) {
+                // Send goodbye message
+                if (window.sendData && peers.size > 0) {
+                    const goodbye = {
+                        type: 'chat',
+                        from: 'chrome-user',
+                        timestamp: Date.now(),
+                        message: 'Chrome user disconnected 👋'
+                    };
+                    window.sendData(JSON.stringify(goodbye));
+                }
+                
+                room = null;
+                window.sendData = null;
+            }
+            
+            peers.clear();
+            updatePeerCount();
+            updateStatus('Disconnected', 'disconnected');
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            connectBtn.textContent = 'Connect to Room';
+            connectBtn.disabled = false;
+            
+            addSystemMessage('Disconnected from room');
+        }
+        
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !window.sendData) return;
+            
+            const message = {
+                type: 'chat',
+                from: 'chrome-user',
+                timestamp: Date.now(),
+                message: text
+            };
+            
+            window.sendData(JSON.stringify(message));
+            addMessage(text, 'sent');
+            messageInput.value = '';
+            console.log(`📤 Sent: "${text}"`);
+        }
+        
+        // Event listeners
+        connectBtn.addEventListener('click', () => {
+            if (room) {
+                disconnectFromRoom();
+            } else {
+                connectToRoom();
+            }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Auto-focus message input when connected
+        const observer = new MutationObserver(() => {
+            if (!messageInput.disabled) {
+                messageInput.focus();
+            }
+        });
+        observer.observe(messageInput, { attributes: true });
+        
+        console.log('🌐 Chrome chat test loaded');
+        console.log(`📡 Will connect to relays: ${RELAYS.join(', ')}`);
+        console.log(`🏠 Room ID: ${ROOM_ID}`);
+    </script>
+</body>
+</html>
