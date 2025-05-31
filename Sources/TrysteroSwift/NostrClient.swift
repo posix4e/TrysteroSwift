@@ -2,6 +2,7 @@ import Foundation
 import NostrClient
 import Nostr
 import CryptoKit
+import Security
 
 class TrysteroNostrClient: NostrClientDelegate {
     private let client: NostrClient
@@ -20,9 +21,34 @@ class TrysteroNostrClient: NostrClientDelegate {
     init(relays: [String], appId: String = "") throws {
         self.relays = relays
         self.appId = appId
-        self.keyPair = try KeyPair()
+        
+        // Use persistent keypair based on appId for consistent peer identity
+        self.keyPair = try Self.getOrCreateKeyPair(for: appId)
+        
         self.client = NostrClient()
         self.client.delegate = self
+    }
+    
+    // Persistent keypair storage using Keychain (for consistent peer IDs)
+    private static func getOrCreateKeyPair(for appId: String) throws -> KeyPair {
+        let keyId = "TrysteroSwift_KeyPair_\(appId.isEmpty ? "default" : appId)"
+        
+        // Try to load existing keypair from Keychain
+        if let existingKeyData = KeychainHelper.load(key: keyId),
+           let keyPairData = try? JSONDecoder().decode(KeyPairData.self, from: existingKeyData) {
+            print("🔑 [Swift Debug] Loaded existing keypair for appId: '\(appId)'")
+            return try KeyPair(hex: keyPairData.privateKey)
+        }
+        
+        // Create new keypair and store it
+        let newKeyPair = try KeyPair()
+        let keyPairData = KeyPairData(privateKey: newKeyPair.privateKey, publicKey: newKeyPair.publicKey)
+        let encodedData = try JSONEncoder().encode(keyPairData)
+        
+        KeychainHelper.save(key: keyId, data: encodedData)
+        print("🔑 [Swift Debug] Created and stored new keypair for appId: '\(appId)'")
+        
+        return newKeyPair
     }
     
     // MARK: - Trystero.js Compatibility Helpers
@@ -337,5 +363,55 @@ enum WebRTCSignal: Codable {
         }
         
         throw TrysteroError.invalidSignal
+    }
+}
+
+// MARK: - Persistent KeyPair Storage
+
+private struct KeyPairData: Codable {
+    let privateKey: String
+    let publicKey: String
+}
+
+private class KeychainHelper {
+    static func save(key: String, data: Data) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data
+        ]
+        
+        // Delete any existing item
+        SecItemDelete(query as CFDictionary)
+        
+        // Add new item
+        SecItemAdd(query as CFDictionary, nil)
+    }
+    
+    static func load(key: String) -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        
+        if status == errSecSuccess {
+            return result as? Data
+        }
+        
+        return nil
+    }
+    
+    static func delete(key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        
+        SecItemDelete(query as CFDictionary)
     }
 }
