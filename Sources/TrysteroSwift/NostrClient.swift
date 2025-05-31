@@ -3,6 +3,9 @@ import NostrClient
 import Nostr
 import CryptoKit
 import Security
+#if os(iOS) || os(tvOS) || os(watchOS)
+import UIKit
+#endif
 
 class TrysteroNostrClient: NostrClientDelegate {
     private let client: NostrClient
@@ -31,7 +34,9 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     // Persistent keypair storage using Keychain (for consistent peer IDs)
     private static func getOrCreateKeyPair(for appId: String) throws -> KeyPair {
-        let keyId = "TrysteroSwift_KeyPair_\(appId.isEmpty ? "default" : appId)"
+        // Generate device-specific but app-scoped identity
+        let deviceId = getDeviceIdentifier()
+        let keyId = "TrysteroSwift_\(deviceId)_\(appId.isEmpty ? "default" : appId)"
         
         // Try to load existing keypair from Keychain
         if let existingKeyData = KeychainHelper.load(key: keyId),
@@ -49,6 +54,45 @@ class TrysteroNostrClient: NostrClientDelegate {
         print("🔑 [Swift Debug] Created and stored new keypair for appId: '\(appId)'")
         
         return newKeyPair
+    }
+    
+    // Get stable device identifier
+    private static func getDeviceIdentifier() -> String {
+        #if os(iOS) || os(tvOS) || os(watchOS)
+        // iOS: Use identifierForVendor (persistent per vendor, resets on app uninstall)
+        if let vendorId = UIDevice.current.identifierForVendor?.uuidString {
+            return vendorId
+        }
+        #elseif os(macOS)
+        // macOS: Use hardware UUID (most persistent)
+        let task = Process()
+        task.launchPath = "/usr/sbin/system_profiler"
+        task.arguments = ["SPHardwareDataType"]
+        
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.launch()
+        task.waitUntilExit()
+        
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let output = String(data: data, encoding: .utf8),
+           let uuidRange = output.range(of: "Hardware UUID: ") {
+            let uuidStart = output.index(uuidRange.upperBound, offsetBy: 0)
+            let uuidEnd = output.index(uuidStart, offsetBy: 36)
+            return String(output[uuidStart..<uuidEnd])
+        }
+        #endif
+        
+        // Fallback: Generate and store a UUID in Keychain
+        let fallbackKey = "TrysteroSwift_DeviceID"
+        if let existingId = KeychainHelper.load(key: fallbackKey),
+           let idString = String(data: existingId, encoding: .utf8) {
+            return idString
+        }
+        
+        let newId = UUID().uuidString
+        KeychainHelper.save(key: fallbackKey, data: newId.data(using: .utf8)!)
+        return newId
     }
     
     // MARK: - Trystero.js Compatibility Helpers
