@@ -203,9 +203,35 @@ getData((data, peerId) => {
   }
 })
 
-// Send periodic status updates
+// Interactive chat mode
+let isInteractiveMode = process.argv.includes('--chat')
+
+if (isInteractiveMode) {
+  console.log('🗣️  Interactive chat mode enabled. Type messages to send:')
+  
+  // Set up stdin for chat input
+  process.stdin.setEncoding('utf8')
+  process.stdin.on('readable', () => {
+    let chunk
+    while ((chunk = process.stdin.read()) !== null) {
+      const message = chunk.trim()
+      if (message && peers.size > 0) {
+        const chatMessage = {
+          type: 'chat',
+          from: 'chrome-user',
+          timestamp: Date.now(),
+          message: message
+        }
+        sendData(JSON.stringify(chatMessage))
+        console.log(`📤 Sent chat: "${message}" to ${peers.size} peers`)
+      }
+    }
+  })
+}
+
+// Send periodic status updates (less frequent in chat mode)
 setInterval(() => {
-  if (peers.size > 0) {
+  if (peers.size > 0 && !isInteractiveMode) {
     const status = {
       type: 'status',
       from: 'trystero-node',
@@ -218,7 +244,7 @@ setInterval(() => {
     sendData(JSON.stringify(status))
     console.log(`📊 Broadcast status update to ${peers.size} peers`)
   }
-}, 10000) // Every 10 seconds
+}, isInteractiveMode ? 30000 : 10000) // 30s in chat mode, 10s otherwise
 
 // Handle process cleanup
 process.on('SIGINT', async () => {

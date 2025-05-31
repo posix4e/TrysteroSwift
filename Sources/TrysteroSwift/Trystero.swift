@@ -34,6 +34,6 @@ public extension TrysteroRoom {
     }
     
     func getPeers() -> [String] {
-        return Array(self.peers.keys)
+        return Array(self.connectedPeers)
     }
 }
