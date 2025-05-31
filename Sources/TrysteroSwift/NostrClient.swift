@@ -51,12 +51,11 @@ class TrysteroNostrClient: NostrClientDelegate {
         return sum % modulo
     }
     
-    /// Calculate event kind like Trystero.js: strToNum(fullTopicHash, range) + baseKind
+    /// Calculate event kind like Trystero.js: strToNum(topicHash, range) + baseKind
     private func calculateEventKind(for roomId: String) -> UInt16 {
-        // Trystero.js uses the FULL hash for event kind calculation, not truncated
-        let topicPath = generateTopicPath(roomId: roomId)
-        let fullHash = sha1Hash(topicPath)
-        let num = stringToNumber(fullHash, modulo: Self.eventKindRange)
+        // Trystero.js calculates event kind from the SHA1 topic hash
+        let topicHash = generateTopic(roomId: roomId)
+        let num = stringToNumber(topicHash, modulo: Self.eventKindRange)
         return UInt16(Self.baseEventKind + num)
     }
     
@@ -64,6 +63,23 @@ class TrysteroNostrClient: NostrClientDelegate {
     private func generateTopic(roomId: String) -> String {
         let topicPath = generateTopicPath(roomId: roomId)
         return sha1Hash(topicPath)  // Use full hash like Trystero.js actually does
+    }
+    
+    /// Get appropriate expiration time for different signal types
+    private func getExpirationTime(for signal: WebRTCSignal) -> Int64 {
+        let now = Int64(Date().timeIntervalSince1970)
+        
+        switch signal {
+        case .presence:
+            // Presence announcements expire in 5 minutes (300 seconds)
+            return now + 300
+        case .offer, .answer:
+            // WebRTC offers/answers expire in 2 minutes (120 seconds)
+            return now + 120
+        case .iceCandidate:
+            // ICE candidates expire in 1 minute (60 seconds)
+            return now + 60
+        }
     }
     
     func connect() async throws {
@@ -78,24 +94,38 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func subscribe(to roomId: String) async throws {
         self.currentRoomId = roomId
-        let topicHash = generateTopic(roomId: roomId)
-        let eventKind = calculateEventKind(for: roomId)
+        let rootTopicHash = generateTopic(roomId: roomId)
+        let rootEventKind = calculateEventKind(for: roomId)
         let topicPath = generateTopicPath(roomId: roomId)
+        
+        // Like Trystero.js, also subscribe to our self topic for direct messages
+        let selfTopicPath = "\(topicPath)@\(keyPair.publicKey)"
+        let selfTopicHash = sha1Hash(selfTopicPath)
+        let selfEventKind = UInt16(Self.baseEventKind + stringToNumber(selfTopicHash, modulo: Self.eventKindRange))
         
         print("🔍 [Swift Debug] Subscribing to room: \(roomId)")
         print("🔍 [Swift Debug] Using appId: '\(appId)'")
         print("🔍 [Swift Debug] Topic path: '\(topicPath)'")
-        print("🔍 [Swift Debug] Generated topic hash: '\(topicHash)'")
-        print("🔍 [Swift Debug] Calculated event kind: \(eventKind)")
+        print("🔍 [Swift Debug] Root topic hash: '\(rootTopicHash)'")
+        print("🔍 [Swift Debug] Root event kind: \(rootEventKind)")
+        print("🔍 [Swift Debug] Self topic hash: '\(selfTopicHash)'")
+        print("🔍 [Swift Debug] Self event kind: \(selfEventKind)")
         
-        let filter = Filter(
-            kinds: [.custom(eventKind)],
-            limit: 100
+        // Subscribe to both root topic (public room events) and self topic (direct messages)
+        let rootFilter = Filter(
+            kinds: [.custom(rootEventKind)],
+            limit: 100,
+            tags: [Tag(id: "x", otherInformation: [rootTopicHash])]
         )
-        let subscription = Subscription(filters: [filter])
+        let selfFilter = Filter(
+            kinds: [.custom(selfEventKind)],
+            limit: 100,
+            tags: [Tag(id: "x", otherInformation: [selfTopicHash])]
+        )
+        
+        let subscription = Subscription(filters: [rootFilter, selfFilter])
         client.add(subscriptions: [subscription])
-        print("🔍 [Swift Debug] Added subscription with filter: kinds=[\(eventKind)], limit=100")
-        print("🔍 [Swift Debug] Will filter by 'x' tag with value: '\(topicHash)'")
+        print("🔍 [Swift Debug] Added subscription with filters for root and self topics")
     }
     
     func publishSignal(_ signal: WebRTCSignal, roomId: String, targetPeer: String?) async throws {
@@ -109,12 +139,17 @@ class TrysteroNostrClient: NostrClientDelegate {
             tags.append(Tag(id: "p", otherInformation: targetPeer))
         }
         
+        // Add expiration tag for proper ephemeral behavior
+        let expirationTime = getExpirationTime(for: signal)
+        tags.append(Tag(id: "expiration", otherInformation: String(expirationTime)))
+        
         print("🔍 [Swift Debug] Publishing signal:")
         print("🔍 [Swift Debug]   Signal type: \(signal)")
         print("🔍 [Swift Debug]   Room ID: \(roomId)")
         print("🔍 [Swift Debug]   Generated topic hash: '\(topicHash)'")
         print("🔍 [Swift Debug]   Event kind: \(eventKind)")
         print("🔍 [Swift Debug]   Target peer: \(targetPeer ?? "ALL")")
+        print("🔍 [Swift Debug]   Expires at: \(expirationTime) (in \(expirationTime - Int64(Date().timeIntervalSince1970))s)")
         
         var event = Event(
             pubkey: keyPair.publicKey,

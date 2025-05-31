@@ -11,12 +11,17 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     internal var dataChannels: [String: RTCDataChannel] = [:]
     private var pendingIceCandidates: [String: [RTCIceCandidate]] = [:]
     internal var connectedPeers: Set<String> = []
+    // Reverse mapping for thread-safe peer ID lookup
+    private var peerConnections: [ObjectIdentifier: String] = [:]
     private var isJoined = false
     
     // Event handlers
     internal var peerJoinHandler: ((String) -> Void)?
     internal var peerLeaveHandler: ((String) -> Void)?
     internal var dataHandler: ((Data, String) -> Void)?
+    internal var webrtcConnectingHandler: ((String) -> Void)?
+    internal var webrtcConnectedHandler: ((String) -> Void)?
+    internal var webrtcDisconnectedHandler: ((String) -> Void)?
     
     public init(roomId: String, relays: [String] = ["wss://relay.damus.io"], appId: String = "") throws {
         self.roomId = roomId
@@ -130,6 +135,11 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     }
     
     internal func cleanupPeer(_ peerId: String) {
+        // Clean up reverse mapping first
+        if let peerConnection = peers[peerId] {
+            peerConnections.removeValue(forKey: ObjectIdentifier(peerConnection))
+        }
+        
         peers.removeValue(forKey: peerId)
         dataChannels.removeValue(forKey: peerId)
         pendingIceCandidates.removeValue(forKey: peerId)
@@ -151,11 +161,23 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         dataChannels.removeAll()
         pendingIceCandidates.removeAll()
         connectedPeers.removeAll()
+        peerConnections.removeAll()
+    }
+    
+    // Helper function to safely get peer ID from peer connection
+    internal func getPeerId(for peerConnection: RTCPeerConnection) -> String? {
+        return peerConnections[ObjectIdentifier(peerConnection)]
     }
     
     // MARK: - WebRTC Signal Handlers
     
     private func handlePeerPresence(_ peerId: String) async {
+        // Skip our own presence announcement
+        guard peerId != nostrClient.keyPair.publicKey else {
+            print("🔍 [Swift Debug] Ignoring our own presence announcement: \(String(peerId.prefix(8)))...")
+            return
+        }
+        
         guard peers[peerId] == nil else { return }
         
         print("🔗 [Swift Debug] Creating peer connection for: \(peerId)")
@@ -166,6 +188,7 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         }
         
         peers[peerId] = peerConnection
+        peerConnections[ObjectIdentifier(peerConnection)] = peerId
         
         // Track peer presence (before WebRTC connection completes)
         connectedPeers.insert(peerId)
@@ -213,6 +236,7 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
             }
             peerConnection = newConnection
             peers[peerId] = newConnection
+            peerConnections[ObjectIdentifier(newConnection)] = peerId
         }
         
         guard let connection = peerConnection else {
