@@ -82,8 +82,8 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 const ROOM_ID = 'swift-interop-test'
-// Use more reliable relays that are less likely to block CI runners
-const RELAY_URLS = ['wss://relay.damus.io', 'wss://nos.lol']
+// Use the same relays that we know Node.js can connect to
+const RELAY_URLS = ['wss://relay.verified-nostr.com', 'wss://nostr.mom']
 
 console.log('🟢 Starting Trystero Node.js test harness...')
 console.log(`📡 Connecting to relays: ${RELAY_URLS.join(', ')}`)
@@ -93,7 +93,9 @@ console.log(`🏠 Room ID: ${ROOM_ID}`)
 const roomConfig = {
   appId: 'trystero',  // Minimal appId that Trystero.js will accept
   rtcPolyfill: RTCPeerConnection,
-  relays: RELAY_URLS
+  relays: RELAY_URLS,
+  // Force Trystero.js to only use our specified relays
+  noEnsureConnected: false
 }
 
 console.log('📋 Room configuration:', JSON.stringify(roomConfig, null, 2))

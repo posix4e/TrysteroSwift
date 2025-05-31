@@ -110,7 +110,7 @@ print("Swift generating: kind=\\(kind), tag=[\\"x\\", \\"\\(truncated)\\"]")
     console.log('🧪 Running Swift interoperability test...')
     
     return new Promise((resolve, reject) => {
-      const timeout = 45000 // 45 seconds
+      const timeout = 15000 // 15 seconds - much shorter timeout
       let output = ''
       let hasCompleted = false
       
@@ -145,15 +145,16 @@ print("Swift generating: kind=\\(kind), tag=[\\"x\\", \\"\\(truncated)\\"]")
         }
       })
       
-      // Set timeout
+      // Set timeout - kill process if it hangs
       setTimeout(() => {
         if (!hasCompleted) {
           hasCompleted = true
-          console.log('⏰ Test timeout reached')
+          console.log('⏰ Swift test timeout - killing process')
           if (this.swiftProcess && !this.swiftProcess.killed) {
-            this.swiftProcess.kill('SIGTERM')
+            this.swiftProcess.kill('SIGKILL')  // Force kill
           }
-          this.analyzeTestResults(124, output, resolve, reject) // 124 = timeout exit code
+          // Treat timeout as failure
+          reject(new Error('Swift test timed out after 15 seconds'))
         }
       }, timeout)
     })
