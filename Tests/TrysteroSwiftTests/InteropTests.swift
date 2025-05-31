@@ -4,7 +4,7 @@ import Foundation
 
 final class InteropTests: XCTestCase {
     private let roomId = "swift-interop-test"
-    private let relays = ["wss://relay.verified-nostr.com", "wss://nostr.mom"]
+    private let relays = ["wss://nostr.mom", "wss://relay.snort.social"]
     private var room: TrysteroRoom?
     private var receivedMessages: [String] = []
     private var connectedPeers: Set<String> = []

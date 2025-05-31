@@ -82,8 +82,8 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 const ROOM_ID = 'swift-interop-test'
-// Use the same relays that we know Node.js can connect to
-const RELAY_URLS = ['wss://relay.verified-nostr.com', 'wss://nostr.mom']
+// Use relays that work reliably in CI environments
+const RELAY_URLS = ['wss://nostr.mom', 'wss://relay.snort.social']
 
 console.log('🟢 Starting Trystero Node.js test harness...')
 console.log(`📡 Connecting to relays: ${RELAY_URLS.join(', ')}`)
