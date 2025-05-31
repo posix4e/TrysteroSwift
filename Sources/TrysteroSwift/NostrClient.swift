@@ -133,17 +133,15 @@ class TrysteroNostrClient: NostrClientDelegate {
         
         print("🔍 [Swift Debug] Event signed with pubkey: \(keyPair.publicKey)")
         
-        return try await withCheckedThrowingContinuation { continuation in
-            client.send(event: event) { error in
-                if let error = error {
-                    print("🔍 [Swift Debug] Event send failed: \(error)")
-                    continuation.resume(throwing: error)
-                } else {
-                    print("🔍 [Swift Debug] Event sent successfully")
-                    continuation.resume()
-                }
+        // Send event without waiting for completion to avoid hanging
+        client.send(event: event) { error in
+            if let error = error {
+                print("🔍 [Swift Debug] Event send failed: \(error)")
+            } else {
+                print("🔍 [Swift Debug] Event sent successfully")
             }
         }
+        print("🔍 [Swift Debug] Event queued for sending")
     }
     
     func setMessageHandler(_ handler: @escaping (WebRTCSignal, String) -> Void) {
@@ -202,7 +200,8 @@ class TrysteroNostrClient: NostrClientDelegate {
         for tag in event.tags where tag.id == "x" {
             if let topicValue = tag.otherInformation.first {
                 foundTopics.append(topicValue)
-                if topicValue == expectedTopicHashes.truncatedHash {
+                // Accept both truncated hash (20 chars) and full hash (40 chars) for compatibility
+                if topicValue == expectedTopicHashes.truncatedHash || topicValue == expectedTopicHashes.fullHash {
                     isForOurRoom = true
                 }
             }
@@ -246,6 +245,20 @@ enum WebRTCSignal: Codable {
         guard let data = json.data(using: .utf8) else {
             throw TrysteroError.nostrError
         }
-        return try JSONDecoder().decode(WebRTCSignal.self, from: data)
+        
+        // Try standard Swift format first
+        do {
+            return try JSONDecoder().decode(WebRTCSignal.self, from: data)
+        } catch {
+            // If that fails, try Node.js Trystero.js format
+            if let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let peerId = jsonObject["peerId"] as? String {
+                // Node.js sends simple {"peerId": "..."} for presence announcements
+                return .presence(peerId: peerId)
+            }
+            
+            // If both fail, throw the original error
+            throw error
+        }
     }
 }
