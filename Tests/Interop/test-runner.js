@@ -172,18 +172,10 @@ print("Swift generating: kind=\\(kind), tag=[\\"x\\", \\"\\(truncated)\\"]")
       relevantLines.forEach(line => console.log(line))
     }
     
+    // Simple pass/fail logic
     if (exitCode === 0) {
       console.log('🎉 SUCCESS: Swift interop test passed!')
       resolve({ success: true, reason: 'Test passed successfully' })
-    } else if (exitCode === 124) {
-      console.log('⏰ TIMEOUT: Test reached timeout - infrastructure working but peer discovery taking longer than expected')
-      console.log('✅ This indicates the protocol is working but may need relay connectivity optimization')
-      resolve({ success: true, reason: 'Timeout - but infrastructure working' })
-    } else if (exitCode === 1 && output.includes('No peers connected')) {
-      console.log('⚠️ PEER DISCOVERY: Swift test couldn\'t connect to Node.js peer')
-      console.log('✅ This may be due to Nostr relay connectivity issues in CI environment')
-      console.log('✅ Protocol verification passed - considering this acceptable for CI')
-      resolve({ success: true, reason: 'Peer discovery issues - but protocol verified' })
     } else {
       console.log(`❌ FAILED: Swift interop test failed (exit code: ${exitCode})`)
       reject(new Error(`Swift test failed with exit code ${exitCode}`))
@@ -242,14 +234,11 @@ print("Swift generating: kind=\\(kind), tag=[\\"x\\", \\"\\(truncated)\\"]")
       
       // Check if Node.js process is still running
       if (!this.nodeProcess || this.nodeProcess.killed || this.nodeProcess.exitCode !== null) {
-        console.log('❌ Node.js harness failed to start or crashed')
-        console.log('⚠️ This may be due to Nostr relay connectivity issues in CI environment')
-        console.log('✅ Protocol verification passed - considering this a success for CI')
-        result = { success: true, reason: 'Node.js startup issues - but protocol verified' }
-      } else {
-        // Phase 3: Run Swift test
-        result = await this.runSwiftTest()
+        throw new Error('Node.js harness failed to start - likely relay connectivity issues')
       }
+      
+      // Phase 3: Run Swift test
+      result = await this.runSwiftTest()
       
     } catch (error) {
       console.error('❌ Test execution error:', error.message)
