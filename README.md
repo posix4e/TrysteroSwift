@@ -9,6 +9,7 @@ A Swift library for decentralized peer-to-peer communication using Nostr for pee
 🏠 **Room-based** - Organize peers into named rooms for group communication  
 ⚡ **Real-time** - Instant message delivery once P2P connections are established  
 🔒 **Privacy-focused** - Data flows directly between peers after initial discovery  
+🔄 **Interoperable** - Full compatibility with Trystero.js for cross-platform communication  
 
 ## Quick Start
 
@@ -27,11 +28,11 @@ dependencies: [
 ```swift
 import TrysteroSwift
 
-// Create a room configuration
-let config = RoomConfig(relays: [
-    "wss://relay.damus.io",
-    "wss://nos.lol"
-])
+// Create a room configuration with Trystero.js compatibility
+let config = RoomConfig(
+    relays: ["wss://nostr.mom", "wss://relay.snort.social"],
+    appId: "trystero"  // Required for cross-platform interoperability
+)
 
 // Join a room
 let room = try Trystero.joinRoom(config: config, roomId: "my-awesome-room")
@@ -87,8 +88,8 @@ Configure Nostr relays and other room settings:
 
 ```swift
 let config = RoomConfig(
-    relays: ["wss://relay.damus.io", "wss://nos.lol"],
-    password: nil  // Future: room passwords
+    relays: ["wss://nostr.mom", "wss://relay.snort.social"],
+    appId: "trystero"  // Required for Trystero.js compatibility
 )
 ```
 
@@ -128,11 +129,31 @@ do {
 }
 ```
 
+## Development Status
+
+**Current Implementation**: Peer discovery and signaling via Nostr ✅  
+**Cross-Platform Tested**: Swift ↔ Node.js interoperability ✅  
+**WebRTC Data Channels**: Scaffolded, implementation in progress 🚧  
+
+### Testing
+
+```bash
+# Run Swift tests
+swift test
+
+# Test cross-platform interoperability (Swift ↔ Node.js)
+cd Tests/Interop
+npm install
+npm run test:interop
+```
+
+Our comprehensive test suite validates protocol compatibility and cross-platform peer discovery between TrysteroSwift and Trystero.js.
+
 ## Platform Support
 
-- **iOS** 13.0+
+- **iOS** 17.0+
 - **macOS** 14.0+
-- **Swift** 6.1+
+- **Swift** 6.0+
 
 ## Requirements
 
@@ -147,7 +168,9 @@ TrysteroSwift aims for API compatibility with the original JavaScript [Trystero]
 
 | Feature | Trystero (JS) | TrysteroSwift |
 |---------|---------------|---------------|
-| **Peer Discovery** | Multiple strategies | Nostr-only |
+| **Peer Discovery** | Multiple strategies | Nostr-compatible |
+| **Protocol** | Multiple formats | Trystero.js-compatible |
+| **Cross-Platform** | ❌ JavaScript only | ✅ Swift ↔ Node.js tested |
 | **API Style** | Callback-based | async/await + callbacks |
 | **Platform** | Web browsers | iOS/macOS native |
 | **Language** | JavaScript | Swift |

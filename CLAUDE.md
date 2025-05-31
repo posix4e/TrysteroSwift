@@ -16,8 +16,9 @@ TrysteroSwift is a Swift library that provides Trystero-compatible peer-to-peer 
 - **NostrClient**: `Galaxoid-Labs/NostrClient` (main) - Nostr protocol implementation
 
 ### Nostr Integration
-- Uses Nostr event kind `29000` (ephemeral events) for WebRTC signaling
-- Room identification via hashtag: `trystero-{roomId}`
+- Uses Trystero.js-compatible dynamic event kinds (base-36 SHA-1 hash + 20000) for WebRTC signaling
+- Room identification via 'x' tags with truncated topic hashes: `Trystero@{appId}@{roomId}`
+- Full protocol compatibility with Trystero.js library for cross-platform interoperability
 - Peer targeting via pubkey tags when needed
 - Automatic key pair generation for each room instance
 
@@ -32,8 +33,12 @@ TrysteroSwift is a Swift library that provides Trystero-compatible peer-to-peer 
 
 ### Public Interface
 ```swift
-// Create and join a room
-let room = try Trystero.joinRoom(config: RoomConfig(relays: ["wss://relay.damus.io"]), roomId: "my-room")
+// Create and join a room with Trystero.js compatibility
+let config = RoomConfig(
+    relays: ["wss://nostr.mom", "wss://relay.snort.social"],
+    appId: "trystero"  // Required for interoperability
+)
+let room = try Trystero.joinRoom(config: config, roomId: "my-room")
 try await room.join()
 
 // Send data to all peers or specific peer
@@ -57,23 +62,38 @@ await room.leave()
 ## Development Status
 
 ### Completed ✅
-- Basic room management structure
-- WebRTC peer connection handling
-- Nostr client integration with proper API usage
-- Data channel creation and messaging
-- Async/await support throughout
-- Sendable compliance for concurrency
-- Package dependencies and build configuration
+- **Core Protocol Implementation**
+  - Trystero.js-compatible signaling protocol
+  - Base-36 SHA-1 topic hash generation
+  - Dynamic event kind calculation (strToNum + 20000)
+  - Cross-platform JSON format compatibility
+- **Nostr Integration**
+  - Full Nostr client integration with proper API usage
+  - Multi-relay support with fallback handling
+  - Event filtering with 'x' tag compatibility
+  - Fire-and-forget event publishing to prevent hangs
+- **Room Management**
+  - Basic room joining and presence announcements
+  - Peer discovery via Nostr relay network
+  - Event handler setup for peer join/leave/data
+- **Testing & CI**
+  - Comprehensive interoperability test suite
+  - GitHub Actions CI with Swift ↔ Node.js validation
+  - SwiftLint strict compliance
+  - Relay connectivity resilience
+- **Concurrency & Performance**
+  - Async/await support throughout
+  - Sendable compliance for Swift 6
+  - Package dependencies and build configuration
 
 ### TODO 🚧
-- Complete WebRTC signaling implementation
+- Complete WebRTC data channel implementation
 - ICE candidate exchange via Nostr
-- Peer presence announcements
-- Event handler implementations
+- Full peer-to-peer data transmission
 - Connection state management
 - Reconnection logic
 - Error recovery mechanisms
-- Unit tests
+- Enhanced unit test coverage
 
 ## Build Instructions
 
@@ -88,17 +108,31 @@ The package automatically fetches:
 - NostrClient Swift package
 - Associated Nostr protocol libraries
 
-### Known Issues
-- WebRTC RTCSessionDescription concurrency warnings (resolved with manual copying)
-- Nostr event filtering needs refinement for room isolation
-- Missing ICE candidate handling implementation
+### Testing
+```bash
+# Run Swift tests
+swift test
+
+# Run interoperability tests (Swift ↔ Node.js)
+cd Tests/Interop
+npm install
+npm run test:interop
+
+# Run CI pipeline locally
+npm run test:protocol  # Verify protocol compatibility
+```
+
+### Known Limitations
+- WebRTC data channels are scaffolded but not fully implemented
+- ICE candidate exchange needs completion for full P2P data flow
+- Currently supports peer discovery but not complete data transmission
 
 ## Testing Strategy
-1. Unit tests for individual components
-2. Integration tests for Nostr + WebRTC flow  
-3. Multi-device testing for P2P scenarios
-4. Relay compatibility testing
-5. Performance testing with multiple peers
+1. **Protocol Compatibility**: Hash generation and event kind validation
+2. **Cross-Platform Interoperability**: Swift ↔ Node.js peer discovery via Nostr
+3. **CI/CD Validation**: Automated testing with multiple Nostr relays
+4. **Relay Resilience**: Graceful handling of relay connectivity issues
+5. **Performance Testing**: Multi-peer scenarios and relay fallbacks
 
 ## Future Enhancements
 - Support for different Nostr relay strategies
