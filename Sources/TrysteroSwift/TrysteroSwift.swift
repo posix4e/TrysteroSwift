@@ -10,16 +10,25 @@ public class TrysteroRoom {
     internal var peers: [String: RTCPeerConnection] = [:]
     private var dataChannels: [String: RTCDataChannel] = [:]
     
-    public init(roomId: String, relays: [String] = ["wss://relay.damus.io"]) throws {
+    public init(roomId: String, relays: [String] = ["wss://relay.damus.io"], appId: String = "") throws {
         self.roomId = roomId
-        self.nostrClient = try TrysteroNostrClient(relays: relays)
+        self.nostrClient = try TrysteroNostrClient(relays: relays, appId: appId)
         self.webRTCManager = WebRTCManager()
     }
     
     public func join() async throws {
+        print("🔍 [Swift Debug] Joining room: \(roomId)")
+        
+        // Set up message handler for WebRTC signaling
+        nostrClient.setMessageHandler { [weak self] signal, fromPeer in
+            print("🔍 [Swift Debug] Received signal from \(fromPeer): \(signal)")
+            self?.handleWebRTCSignalSync(signal, from: fromPeer)
+        }
+        
         try await nostrClient.connect()
         try await nostrClient.subscribe(to: roomId)
         try await announcePresence()
+        print("🔍 [Swift Debug] Successfully joined room: \(roomId)")
     }
     
     public func leave() async {
@@ -36,7 +45,37 @@ public class TrysteroRoom {
     }
     
     private func announcePresence() async throws {
-        // Implementation for announcing presence via Nostr
+        print("🔍 [Swift Debug] Announcing presence to room: \(roomId)")
+        let presenceSignal = WebRTCSignal.presence(peerId: nostrClient.keyPair.publicKey)
+        try await nostrClient.publishSignal(presenceSignal, roomId: roomId, targetPeer: nil)
+        print("🔍 [Swift Debug] Presence announcement sent successfully")
+    }
+    
+    private func handleWebRTCSignalSync(_ signal: WebRTCSignal, from fromPeer: String) {
+        print("🔍 [Swift Debug] Processing WebRTC signal from \(fromPeer): \(signal)")
+        
+        switch signal {
+        case .presence(let peerId):
+            print("🔍 [Swift Debug] Peer \(fromPeer) announced presence with ID: \(peerId)")
+            // For now, just log that we discovered a peer
+            print("🔍 [Swift Debug] Discovered peer: \(fromPeer)")
+            
+        case .offer:
+            print("🔍 [Swift Debug] Received WebRTC offer from \(fromPeer)")
+            // WebRTC offer handling will be implemented in future versions
+            
+        case .answer:
+            print("🔍 [Swift Debug] Received WebRTC answer from \(fromPeer)")
+            // WebRTC answer handling will be implemented in future versions
+            
+        case .iceCandidate:
+            print("🔍 [Swift Debug] Received ICE candidate from \(fromPeer)")
+            // ICE candidate handling will be implemented in future versions
+        }
+    }
+    
+    private func handleWebRTCSignal(_ signal: WebRTCSignal, from fromPeer: String) async {
+        handleWebRTCSignalSync(signal, from: fromPeer)
     }
     
     private func sendToPeer(_ data: Data, peerId: String) throws {

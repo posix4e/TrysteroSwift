@@ -3,17 +3,20 @@ import Foundation
 public class Trystero {
     public static func joinRoom(config: RoomConfig, roomId: String) throws -> TrysteroRoom {
         let relays = config.relays ?? ["wss://relay.damus.io"]
-        return try TrysteroRoom(roomId: roomId, relays: relays)
+        let appId = config.appId ?? ""
+        return try TrysteroRoom(roomId: roomId, relays: relays, appId: appId)
     }
 }
 
 public struct RoomConfig {
     public let relays: [String]?
     public let password: String?
+    public let appId: String?
     
-    public init(relays: [String]? = nil, password: String? = nil) {
+    public init(relays: [String]? = nil, password: String? = nil, appId: String? = nil) {
         self.relays = relays
         self.password = password
+        self.appId = appId
     }
 }
 

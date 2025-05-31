@@ -78,8 +78,8 @@ await room.leave()
 ## Build Instructions
 
 ### Requirements
-- iOS 13+ / macOS 14+
-- Swift 6.1+
+- iOS 17+ / macOS 14+
+- Swift 6.0+
 - Xcode with Swift Package Manager
 
 ### Dependencies
