@@ -62,7 +62,7 @@ final class PeerDiscoveryTests: XCTestCase {
         XCTAssertEqual(room.getPeers().count, 0, "Should start with no peers")
         
         // Test error handling when not joined
-        let testData = "Hello".data(using: .utf8)!
+        let testData = Data("Hello".utf8)
         XCTAssertThrowsError(try room.send(testData)) { error in
             XCTAssertEqual(error as? TrysteroError, TrysteroError.roomNotJoined)
         }
