@@ -33,7 +33,23 @@ public extension TrysteroRoom {
         self.dataHandler = handler
     }
     
+    func onWebRTCConnecting(_ handler: @escaping (String) -> Void) {
+        self.webrtcConnectingHandler = handler
+    }
+    
+    func onWebRTCConnected(_ handler: @escaping (String) -> Void) {
+        self.webrtcConnectedHandler = handler
+    }
+    
+    func onWebRTCDisconnected(_ handler: @escaping (String) -> Void) {
+        self.webrtcDisconnectedHandler = handler
+    }
+    
     func getPeers() -> [String] {
         return Array(self.connectedPeers)
+    }
+    
+    var ownPeerId: String {
+        return self.nostrClient.keyPair.publicKey
     }
 }

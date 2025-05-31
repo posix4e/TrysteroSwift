@@ -22,18 +22,25 @@ extension TrysteroRoom {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
         print("🧊 [Swift Debug] ICE connection state changed: \(newState)")
         
-        // Find peer ID for this connection
-        let peerId = peers.first { $0.value === peerConnection }?.key
+        // Find peer ID for this connection using safe lookup
+        let peerId = getPeerId(for: peerConnection)
         
         switch newState {
+        case .checking:
+            if let peerId = peerId {
+                print("🤝 [Swift Debug] Peer \(peerId) WebRTC connecting")
+                webrtcConnectingHandler?(peerId)
+            }
         case .connected, .completed:
             if let peerId = peerId {
                 print("✅ [Swift Debug] Peer \(peerId) WebRTC connected")
+                webrtcConnectedHandler?(peerId)
                 // Note: peerJoinHandler already called in handlePeerPresence
             }
         case .disconnected, .failed, .closed:
             if let peerId = peerId {
                 print("❌ [Swift Debug] Peer \(peerId) WebRTC disconnected")
+                webrtcDisconnectedHandler?(peerId)
                 cleanupPeer(peerId)
             }
         default:
@@ -48,7 +55,7 @@ extension TrysteroRoom {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
         print("🧊 [Swift Debug] Generated ICE candidate")
         
-        let peerId = peers.first { $0.value === peerConnection }?.key
+        let peerId = getPeerId(for: peerConnection)
         guard let targetPeer = peerId else { return }
         
         let signal = WebRTCSignal.iceCandidate(
@@ -74,7 +81,7 @@ extension TrysteroRoom {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
         print("📡 [Swift Debug] Data channel opened: \(dataChannel.label)")
         
-        let peerId = peers.first { $0.value === peerConnection }?.key
+        let peerId = getPeerId(for: peerConnection)
         if let peerId = peerId {
             dataChannel.delegate = self
             dataChannels[peerId] = dataChannel
