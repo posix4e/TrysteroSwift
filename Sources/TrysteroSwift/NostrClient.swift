@@ -198,6 +198,12 @@ class TrysteroNostrClient: NostrClientDelegate {
     }
     
     private func handleNostrEvent(_ event: Event, for roomId: String) {
+        // Skip our own events
+        guard event.pubkey != keyPair.publicKey else {
+            print("🔍 [Swift Debug] Ignoring our own event")
+            return
+        }
+        
         let expectedTopicHash = generateTopic(roomId: roomId)
         let expectedEventKind = calculateEventKind(for: roomId)
         
