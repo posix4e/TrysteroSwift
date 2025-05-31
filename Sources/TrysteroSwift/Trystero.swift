@@ -22,15 +22,15 @@ public struct RoomConfig {
 
 public extension TrysteroRoom {
     func onPeerJoin(_ handler: @escaping (String) -> Void) {
-        // Implementation for peer join events
+        self.peerJoinHandler = handler
     }
     
     func onPeerLeave(_ handler: @escaping (String) -> Void) {
-        // Implementation for peer leave events
+        self.peerLeaveHandler = handler
     }
     
     func onData(_ handler: @escaping (Data, String) -> Void) {
-        // Implementation for data received events
+        self.dataHandler = handler
     }
     
     func getPeers() -> [String] {
