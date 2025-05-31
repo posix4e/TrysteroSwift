@@ -82,9 +82,10 @@ private struct SeededRandomGenerator: RandomNumberGenerator {
 // DJB2 hash algorithm for string to int conversion
 private extension String {
     var djb2hash: Int {
-        return self.utf8.reduce(5381) { hash, byte in
+        let result = self.utf8.reduce(5381) { hash, byte in
             return ((hash << 5) &+ hash) &+ Int(byte)
         }
+        return abs(result) // Ensure positive value for UInt64 conversion
     }
 }
 
