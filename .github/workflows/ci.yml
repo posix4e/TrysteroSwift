@@ -91,11 +91,23 @@ jobs:
         echo "🧪 Running Swift interoperability test..."
         cd ../..
         
-        # Create a script to run Swift test with timeout
+        # Create a script to run Swift test with timeout (macOS compatible)
         cat > run_swift_test.sh << 'EOF'
         #!/bin/bash
-        timeout 45s swift test --filter testTrysteroJSInteroperability 2>&1 | tee swift_test_output.log
-        echo "Swift test exit code: $?" >> swift_test_output.log
+        # Run Swift test with timeout using background process and kill
+        swift test --filter testTrysteroJSInteroperability 2>&1 | tee swift_test_output.log &
+        SWIFT_TEST_PID=$!
+        
+        # Wait for 45 seconds or until process completes
+        sleep 45 && kill $SWIFT_TEST_PID 2>/dev/null && echo "Test timed out" >> swift_test_output.log &
+        TIMEOUT_PID=$!
+        
+        wait $SWIFT_TEST_PID 2>/dev/null
+        TEST_EXIT=$?
+        kill $TIMEOUT_PID 2>/dev/null || true
+        
+        echo "Swift test exit code: $TEST_EXIT" >> swift_test_output.log
+        exit $TEST_EXIT
         EOF
         chmod +x run_swift_test.sh
         
