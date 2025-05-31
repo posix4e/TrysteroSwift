@@ -59,15 +59,13 @@ class TrysteroNostrClient: NostrClientDelegate {
     // Get stable device identifier
     private static func getDeviceIdentifier() -> String {
         #if os(iOS) || os(tvOS) || os(watchOS)
-        // iOS: Use identifierForVendor (persistent per vendor, resets on app uninstall)
-        if let vendorId = UIDevice.current.identifierForVendor?.uuidString {
-            return vendorId
-        }
+        // iOS: Use identifierForVendor (stable until all vendor apps uninstalled)
+        return UIDevice.current.identifierForVendor?.uuidString ?? "unknown-ios"
         #elseif os(macOS)
-        // macOS: Use hardware UUID (most persistent)
+        // macOS: Use IOPlatformUUID (permanent hardware identifier)
         let task = Process()
-        task.launchPath = "/usr/sbin/system_profiler"
-        task.arguments = ["SPHardwareDataType"]
+        task.launchPath = "/usr/sbin/ioreg"
+        task.arguments = ["-d2", "-c", "IOPlatformExpertDevice"]
         
         let pipe = Pipe()
         task.standardOutput = pipe
@@ -76,23 +74,16 @@ class TrysteroNostrClient: NostrClientDelegate {
         
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         if let output = String(data: data, encoding: .utf8),
-           let uuidRange = output.range(of: "Hardware UUID: ") {
+           let uuidRange = output.range(of: "\"IOPlatformUUID\" = \"") {
             let uuidStart = output.index(uuidRange.upperBound, offsetBy: 0)
             let uuidEnd = output.index(uuidStart, offsetBy: 36)
             return String(output[uuidStart..<uuidEnd])
         }
+        return "unknown-mac"
+        #else
+        // Other platforms: simple fallback
+        return "unknown-platform"
         #endif
-        
-        // Fallback: Generate and store a UUID in Keychain
-        let fallbackKey = "TrysteroSwift_DeviceID"
-        if let existingId = KeychainHelper.load(key: fallbackKey),
-           let idString = String(data: existingId, encoding: .utf8) {
-            return idString
-        }
-        
-        let newId = UUID().uuidString
-        KeychainHelper.save(key: fallbackKey, data: newId.data(using: .utf8)!)
-        return newId
     }
     
     // MARK: - Trystero.js Compatibility Helpers
