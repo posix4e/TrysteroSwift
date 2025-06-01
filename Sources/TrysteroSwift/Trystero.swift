@@ -45,7 +45,10 @@ public struct TrysteroIceServer: Sendable {
     public let credential: String?
 
     public static let defaults = [
-        TrysteroIceServer(urls: ["stun:stun.l.google.com:19302"], username: nil, credential: nil)
+        TrysteroIceServer(urls: ["stun:stun.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun1.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun2.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun.cloudflare.com:3478"], username: nil, credential: nil)
     ]
 
     public init(urls: [String], username: String? = nil, credential: String? = nil) {

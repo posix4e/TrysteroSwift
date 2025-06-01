@@ -228,8 +228,13 @@ class Peer: NSObject {
                 )
             }
         } else {
-            // Use default STUN server
-            config.iceServers = [RTCIceServer(urlStrings: ["stun:stun.l.google.com:19302"])]
+            // Use default STUN servers matching Trystero.js
+            config.iceServers = [
+                RTCIceServer(urlStrings: ["stun:stun.l.google.com:19302"]),
+                RTCIceServer(urlStrings: ["stun:stun1.l.google.com:19302"]),
+                RTCIceServer(urlStrings: ["stun:stun2.l.google.com:19302"]),
+                RTCIceServer(urlStrings: ["stun:stun.cloudflare.com:3478"])
+            ]
         }
 
         let constraints = RTCMediaConstraints(
