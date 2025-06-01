@@ -20,7 +20,7 @@ const room = joinRoom({
   appId: 'interop-test',
   relayUrls: [
     'wss://relay.nostr.band',
-    'wss://nostr-pub.wellorder.net', 
+    'wss://nostr-pub.wellorder.net',
     'wss://relay.damus.io'
   ]
 }, roomId)
