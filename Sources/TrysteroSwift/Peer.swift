@@ -256,7 +256,7 @@ class Peer: NSObject {
 
     private func createDataChannel(label: String) {
         guard let pc = peerConnection else { return }
-        
+
         // Check if channel already exists
         if dataChannels[label] != nil {
             print("📡 Peer: Data channel '\(label)' already exists")
@@ -278,7 +278,7 @@ class Peer: NSObject {
     @MainActor
     private func createOffer() async throws {
         guard let pc = peerConnection else { return }
-        
+
         // Check if we're already in a non-stable state
         if pc.signalingState != .stable {
             print("⚠️ Peer: Cannot create offer - signaling state is \(pc.signalingState)")
@@ -334,7 +334,7 @@ extension Peer: RTCPeerConnectionDelegate {
         Task { @MainActor in
             print("🔌 Peer: ICE connection state changed to: \(newState)")
         }
-        
+
         switch newState {
         case .connected, .completed:
             Task { @MainActor in
