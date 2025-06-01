@@ -52,9 +52,9 @@ class Peer: NSObject {
                 do {
                     try await createOffer()
                 } catch {
-                    // Failed to create initial offer - connection will fail
+                    // Failed to create initial offer - log but don't close immediately
+                    // The connection might still work if the other peer sends an offer
                     print("❌ Peer: Failed to create initial offer: \(error)")
-                    close()
                 }
             }
         }
@@ -113,8 +113,8 @@ class Peer: NSObject {
         do {
             try await pc.setRemoteDescription(RTCSessionDescription(type: .answer, sdp: sdp))
         } catch {
-            // Failed to set answer - connection fails
-            close()
+            // Failed to set answer - log error but don't close
+            print("❌ Peer: Failed to set answer: \(error)")
         }
     }
 
@@ -251,6 +251,12 @@ class Peer: NSObject {
 
     private func createDataChannel(label: String) {
         guard let pc = peerConnection else { return }
+        
+        // Check if channel already exists
+        if dataChannels[label] != nil {
+            print("📡 Peer: Data channel '\(label)' already exists")
+            return
+        }
 
         let config = RTCDataChannelConfiguration()
         config.isOrdered = true
@@ -267,12 +273,19 @@ class Peer: NSObject {
     @MainActor
     private func createOffer() async throws {
         guard let pc = peerConnection else { return }
+        
+        // Check if we're already in a non-stable state
+        if pc.signalingState != .stable {
+            print("⚠️ Peer: Cannot create offer - signaling state is \(pc.signalingState)")
+            return
+        }
 
         makingOffer = true
         defer { makingOffer = false }
 
         let offer = try await pc.offer(for: nil)
 
+        // Double-check state hasn't changed
         if pc.signalingState != .stable {
             return
         }
@@ -313,14 +326,25 @@ extension Peer: RTCPeerConnectionDelegate {
     }
 
     nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
+        Task { @MainActor in
+            print("🔌 Peer: ICE connection state changed to: \(newState)")
+        }
+        
         switch newState {
         case .connected, .completed:
             Task { @MainActor in
+                print("✅ Peer: ICE connection established")
                 self.onConnect()
             }
-        case .failed, .disconnected:
+        case .failed:
             Task { @MainActor in
+                print("❌ Peer: ICE connection failed")
                 self.close()
+            }
+        case .disconnected:
+            Task { @MainActor in
+                print("🔌 Peer: ICE connection disconnected")
+                // Don't close immediately on disconnect - might reconnect
             }
         default:
             break
