@@ -1,6 +1,5 @@
 import Foundation
 @preconcurrency import NostrClient
-import Nostr
 import CryptoKit
 
 /// Handles Nostr relay communication for signaling

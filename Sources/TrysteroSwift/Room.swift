@@ -227,7 +227,7 @@ public class Room {
     }
 
     private static func generateId() -> String {
-        return UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(20).description
+        return String(UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased().prefix(20))
     }
 }
 
