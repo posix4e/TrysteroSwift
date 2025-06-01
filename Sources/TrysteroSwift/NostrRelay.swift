@@ -93,7 +93,7 @@ class NostrRelay: NostrClientDelegate {
             // If we don't have the mapping, we can't send the signal
             throw TrysteroError.peerNotFound(peerId)
         }
-        
+
         let content = encodeSignal(signal)
 
         var event = Event(
