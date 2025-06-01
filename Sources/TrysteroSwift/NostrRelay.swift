@@ -21,11 +21,11 @@ class NostrRelay: NostrClientDelegate {
         self.config = config
         self.namespace = namespace
         self.selfId = selfId
-        
+
         // Calculate topic hash matching Trystero.js: SHA1("Trystero@{appId}@{roomId}")
         let topicPath = "Trystero@\(config.appId)@\(namespace)"
         let topicHash = Self.sha1Hash(topicPath)
-        
+
         // Calculate event kind from topic hash (matching Trystero.js)
         self.eventKind = Self.topicToKind(topicHash)
 
@@ -39,9 +39,9 @@ class NostrRelay: NostrClientDelegate {
         self.client = NostrClient()
         self.client.delegate = self
     }
-    
+
     // MARK: - Static Methods
-    
+
     /// Calculate SHA1 hash of a string and return as base36 string (matching Trystero.js)
     /// Each byte is converted to base36 and joined
     private static func sha1Hash(_ string: String) -> String {
@@ -51,7 +51,7 @@ class NostrRelay: NostrClientDelegate {
             String(Int(byte), radix: 36)
         }.joined()
     }
-    
+
     /// Convert topic string to event kind (matching Trystero.js)
     /// Uses the same algorithm: strToNum(topic, 10_000) + 20_000
     private static func topicToKind(_ topic: String) -> UInt16 {
