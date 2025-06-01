@@ -1,5 +1,5 @@
 import Foundation
-import WebRTC
+@preconcurrency import WebRTC
 
 class WebRTCManager: NSObject {
     private let peerConnectionFactory: RTCPeerConnectionFactory
@@ -49,15 +49,32 @@ class WebRTCManager: NSObject {
     func createOffer(for peerConnection: RTCPeerConnection) async throws -> RTCSessionDescription {
         return try await withCheckedThrowingContinuation { continuation in
             let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
+            var completed = false
+            
+            // Set up timeout
+            let timer = DispatchSource.makeTimerSource()
+            timer.schedule(deadline: .now() + 10) // 10 second timeout
+            timer.setEventHandler {
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    continuation.resume(throwing: TrysteroError.webRTCError("createOffer timeout"))
+                }
+            }
+            timer.resume()
             
             peerConnection.offer(for: constraints) { sdp, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let sdp = sdp {
-                    let newSdp = RTCSessionDescription(type: sdp.type, sdp: sdp.sdp)
-                    continuation.resume(returning: newSdp)
-                } else {
-                    continuation.resume(throwing: TrysteroError.connectionFailed)
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if let sdp = sdp {
+                        let newSdp = RTCSessionDescription(type: sdp.type, sdp: sdp.sdp)
+                        continuation.resume(returning: newSdp)
+                    } else {
+                        continuation.resume(throwing: TrysteroError.connectionFailed)
+                    }
                 }
             }
         }
@@ -66,15 +83,32 @@ class WebRTCManager: NSObject {
     func createAnswer(for peerConnection: RTCPeerConnection) async throws -> RTCSessionDescription {
         return try await withCheckedThrowingContinuation { continuation in
             let constraints = RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)
+            var completed = false
+            
+            // Set up timeout
+            let timer = DispatchSource.makeTimerSource()
+            timer.schedule(deadline: .now() + 10) // 10 second timeout
+            timer.setEventHandler {
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    continuation.resume(throwing: TrysteroError.webRTCError("createAnswer timeout"))
+                }
+            }
+            timer.resume()
             
             peerConnection.answer(for: constraints) { sdp, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let sdp = sdp {
-                    let newSdp = RTCSessionDescription(type: sdp.type, sdp: sdp.sdp)
-                    continuation.resume(returning: newSdp)
-                } else {
-                    continuation.resume(throwing: TrysteroError.connectionFailed)
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if let sdp = sdp {
+                        let newSdp = RTCSessionDescription(type: sdp.type, sdp: sdp.sdp)
+                        continuation.resume(returning: newSdp)
+                    } else {
+                        continuation.resume(throwing: TrysteroError.connectionFailed)
+                    }
                 }
             }
         }
@@ -82,11 +116,29 @@ class WebRTCManager: NSObject {
     
     func setLocalDescription(_ sdp: RTCSessionDescription, for peerConnection: RTCPeerConnection) async throws {
         return try await withCheckedThrowingContinuation { continuation in
+            var completed = false
+            
+            // Set up timeout
+            let timer = DispatchSource.makeTimerSource()
+            timer.schedule(deadline: .now() + 10) // 10 second timeout
+            timer.setEventHandler {
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    continuation.resume(throwing: TrysteroError.webRTCError("setLocalDescription timeout"))
+                }
+            }
+            timer.resume()
+            
             peerConnection.setLocalDescription(sdp) { error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: ())
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
                 }
             }
         }
@@ -94,11 +146,29 @@ class WebRTCManager: NSObject {
     
     func setRemoteDescription(_ sdp: RTCSessionDescription, for peerConnection: RTCPeerConnection) async throws {
         return try await withCheckedThrowingContinuation { continuation in
+            var completed = false
+            
+            // Set up timeout
+            let timer = DispatchSource.makeTimerSource()
+            timer.schedule(deadline: .now() + 10) // 10 second timeout
+            timer.setEventHandler {
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    continuation.resume(throwing: TrysteroError.webRTCError("setRemoteDescription timeout"))
+                }
+            }
+            timer.resume()
+            
             peerConnection.setRemoteDescription(sdp) { error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: ())
+                if !completed {
+                    completed = true
+                    timer.cancel()
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
                 }
             }
         }

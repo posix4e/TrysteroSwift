@@ -15,16 +15,25 @@ class TrysteroNostrClient: NostrClientDelegate {
     private static let libName = "Trystero"
     private static let baseEventKind = 20000
     private static let eventKindRange = 10000
-    private static let hashLimit = 20  // Match Trystero.js hashLimit for topic hashes
     
     init(relays: [String], appId: String = "") throws {
         self.relays = relays
         self.appId = appId
-        self.keyPair = try KeyPair()
+        
+        // Use persistent keypair based on appId for consistent peer identity
+        self.keyPair = try Self.getOrCreateKeyPair(for: appId)
+        
         self.client = NostrClient()
         self.client.delegate = self
     }
     
+    // Generate new keypair for each session
+    private static func getOrCreateKeyPair(for appId: String) throws -> KeyPair {
+        let newKeyPair = try KeyPair()
+        print("🔑 [Swift Debug] Created new keypair for appId: '\(appId)'")
+        return newKeyPair
+    }
+
     // MARK: - Trystero.js Compatibility Helpers
     
     /// Generate topic path in Trystero.js format: "Trystero@appId@roomId"
@@ -37,32 +46,35 @@ class TrysteroNostrClient: NostrClientDelegate {
         let data = Data(input.utf8)
         let digest = Insecure.SHA1.hash(data: data)
         return digest.map { byte in
-            // JavaScript-style byte.toString(36)
             String(byte, radix: 36)
         }.joined()
     }
     
-    /// Convert string to number like Trystero.js strToNum function
-    private func stringToNumber(_ str: String, modulo: Int) -> Int {
-        var sum = 0
-        for char in str {
-            sum += Int(char.asciiValue ?? 0)
+    /// Get topic hash for use in tags
+    private func getTopic(roomId: String) -> String {
+        let topicPath = generateTopicPath(roomId: roomId)
+        return sha1Hash(topicPath)
+    }
+    
+    /// Convert string to number exactly like Trystero.js strToNum function
+    private func stringToNumber(_ str: String, limit: Int) -> Int {
+        let sum = str.reduce(0) { acc, char in
+            acc + Int(char.unicodeScalars.first?.value ?? 0)
         }
-        return sum % modulo
+        return sum % limit
     }
     
     /// Calculate event kind like Trystero.js: strToNum(topicHash, range) + baseKind
     private func calculateEventKind(for roomId: String) -> UInt16 {
-        // Trystero.js calculates event kind from the SHA1 topic hash
-        let topicHash = generateTopic(roomId: roomId)
-        let num = stringToNumber(topicHash, modulo: Self.eventKindRange)
+        // Trystero.js calculates event kind from the topic HASH (not path)
+        let topicHash = getTopic(roomId: roomId)
+        let num = stringToNumber(topicHash, limit: Self.eventKindRange)
         return UInt16(Self.baseEventKind + num)
     }
     
-    /// Generate Trystero.js-compatible topic hash (use full hash for 'x' tag)
+    /// Generate Trystero.js-compatible topic string (for 'x' tag)
     private func generateTopic(roomId: String) -> String {
-        let topicPath = generateTopicPath(roomId: roomId)
-        return sha1Hash(topicPath)  // Use full hash like Trystero.js actually does
+        return getTopic(roomId: roomId)
     }
     
     /// Get appropriate expiration time for different signal types
@@ -94,33 +106,33 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func subscribe(to roomId: String) async throws {
         self.currentRoomId = roomId
-        let rootTopicHash = generateTopic(roomId: roomId)
+        let rootTopic = generateTopic(roomId: roomId)
         let rootEventKind = calculateEventKind(for: roomId)
         let topicPath = generateTopicPath(roomId: roomId)
         
         // Like Trystero.js, also subscribe to our self topic for direct messages
         let selfTopicPath = "\(topicPath)@\(keyPair.publicKey)"
-        let selfTopicHash = sha1Hash(selfTopicPath)
-        let selfEventKind = UInt16(Self.baseEventKind + stringToNumber(selfTopicHash, modulo: Self.eventKindRange))
+        let selfTopic = sha1Hash(selfTopicPath)
+        let selfEventKind = UInt16(Self.baseEventKind + stringToNumber(selfTopic, limit: Self.eventKindRange))
         
         print("🔍 [Swift Debug] Subscribing to room: \(roomId)")
         print("🔍 [Swift Debug] Using appId: '\(appId)'")
         print("🔍 [Swift Debug] Topic path: '\(topicPath)'")
-        print("🔍 [Swift Debug] Root topic hash: '\(rootTopicHash)'")
+        print("🔍 [Swift Debug] Root topic: '\(rootTopic)'")
         print("🔍 [Swift Debug] Root event kind: \(rootEventKind)")
-        print("🔍 [Swift Debug] Self topic hash: '\(selfTopicHash)'")
+        print("🔍 [Swift Debug] Self topic: '\(selfTopic)'")
         print("🔍 [Swift Debug] Self event kind: \(selfEventKind)")
         
         // Subscribe to both root topic (public room events) and self topic (direct messages)
         let rootFilter = Filter(
             kinds: [.custom(rootEventKind)],
             limit: 100,
-            tags: [Tag(id: "x", otherInformation: [rootTopicHash])]
+            tags: [Tag(id: "x", otherInformation: [rootTopic])]
         )
         let selfFilter = Filter(
             kinds: [.custom(selfEventKind)],
             limit: 100,
-            tags: [Tag(id: "x", otherInformation: [selfTopicHash])]
+            tags: [Tag(id: "x", otherInformation: [selfTopic])]
         )
         
         let subscription = Subscription(filters: [rootFilter, selfFilter])
@@ -130,11 +142,11 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func publishSignal(_ signal: WebRTCSignal, roomId: String, targetPeer: String?) async throws {
         let content = try signal.toJSON()
-        let topicHash = generateTopic(roomId: roomId)
+        let topic = generateTopic(roomId: roomId)
         let eventKind = calculateEventKind(for: roomId)
         
-        // Use 'x' tag with full hashed topic (no truncation)
-        var tags: [Tag] = [Tag(id: "x", otherInformation: topicHash)]
+        // Use 'x' tag with topic string (not hashed)
+        var tags: [Tag] = [Tag(id: "x", otherInformation: topic)]
         if let targetPeer = targetPeer {
             tags.append(Tag(id: "p", otherInformation: targetPeer))
         }
@@ -146,7 +158,7 @@ class TrysteroNostrClient: NostrClientDelegate {
         print("🔍 [Swift Debug] Publishing signal:")
         print("🔍 [Swift Debug]   Signal type: \(signal)")
         print("🔍 [Swift Debug]   Room ID: \(roomId)")
-        print("🔍 [Swift Debug]   Generated topic hash: '\(topicHash)'")
+        print("🔍 [Swift Debug]   Generated topic: '\(topic)'")
         print("🔍 [Swift Debug]   Event kind: \(eventKind)")
         print("🔍 [Swift Debug]   Target peer: \(targetPeer ?? "ALL")")
         print("🔍 [Swift Debug]   Expires at: \(expirationTime) (in \(expirationTime - Int64(Date().timeIntervalSince1970))s)")
@@ -239,7 +251,7 @@ class TrysteroNostrClient: NostrClientDelegate {
             return
         }
         
-        let expectedTopicHash = generateTopic(roomId: roomId)
+        let expectedTopic = generateTopic(roomId: roomId)
         let expectedEventKind = calculateEventKind(for: roomId)
         
         print("🔍 [Swift Debug] Processing event in handleNostrEvent:")
@@ -252,22 +264,22 @@ class TrysteroNostrClient: NostrClientDelegate {
             return 
         }
         
-        // Check if this event is for our room by looking for 'x' tag with our topic hash
+        // Check if this event is for our room by looking for 'x' tag with our topic
         var isForOurRoom = false
         var foundTopics: [String] = []
         
         for tag in event.tags where tag.id == "x" {
             if let topicValue = tag.otherInformation.first {
                 foundTopics.append(topicValue)
-                if topicValue == expectedTopicHash {
+                if topicValue == expectedTopic {
                     isForOurRoom = true
                 }
             }
         }
         
         print("🔍 [Swift Debug] Event topic analysis:")
-        print("🔍 [Swift Debug]   Expected topic hash: '\(expectedTopicHash)'")
-        print("🔍 [Swift Debug]   Found topic hashes: \(foundTopics)")
+        print("🔍 [Swift Debug]   Expected topic: '\(expectedTopic)'")
+        print("🔍 [Swift Debug]   Found topics: \(foundTopics)")
         print("🔍 [Swift Debug]   Is for our room: \(isForOurRoom)")
         
         if !isForOurRoom {
