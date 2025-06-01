@@ -109,17 +109,24 @@ public class Room {
     private func handlePeerPresence(_ peerId: String) {
         guard peerId != selfId else { return }
 
+        print("👥 Room: Handling peer presence for \(peerId), selfId: \(selfId)")
+
         if peers[peerId] == nil {
+            let polite = selfId > peerId
+            print("👥 Room: Creating new peer connection, polite: \(polite)")
+            print("👥 Room: selfId=\(selfId), peerId=\(peerId), comparison: \(selfId) > \(peerId) = \(polite)")
+
             let peer = Peer(
                 id: peerId,
-                polite: selfId > peerId,
+                polite: polite,
                 config: config.rtcConfig,
                 onSignal: { [weak self] signal in
                     Task { @MainActor in
                         do {
+                            print("📤 Room: Sending signal \(signal.type) to \(peerId)")
                             try self?.nostr.sendSignal(signal, to: peerId)
                         } catch {
-                            // Signal send failed - peer connection will timeout
+                            print("❌ Room: Failed to send signal to \(peerId): \(error)")
                         }
                     }
                 },
@@ -138,29 +145,64 @@ public class Room {
             )
 
             peers[peerId] = peer
-            peer.initiate()
+            // Only initiate if we're impolite (initiator)
+            if !polite {
+                peer.initiate()
+            }
+        } else {
+            print("👥 Room: Peer \(peerId) already exists")
         }
     }
 
     private func handleSignal(_ signal: Signal, from peerId: String) {
+        print("📥 Room: Received signal \(signal.type) from \(peerId)")
+
         if let peer = peers[peerId] {
             peer.handleSignal(signal)
         } else if signal.type != .bye {
-            // Create peer if we receive a signal from unknown peer
-            handlePeerPresence(peerId)
-            // Handle signal after peer is created
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                self.peers[peerId]?.handleSignal(signal)
-            }
+            print("📥 Room: Creating peer for unknown sender \(peerId)")
+            // When we receive an offer from an unknown peer, we are polite
+            let polite = signal.type == .offer
+
+            let peer = Peer(
+                id: peerId,
+                polite: polite,
+                config: config.rtcConfig,
+                onSignal: { [weak self] signal in
+                    print("📤 Room: Sending signal \(signal.type) to \(peerId)")
+                    do {
+                        try self?.nostr.sendSignal(signal, to: peerId)
+                    } catch {
+                        print("❌ Room: Failed to send signal: \(error)")
+                    }
+                },
+                onConnect: { [weak self] in
+                    self?.handlePeerConnect(peerId)
+                },
+                onData: { [weak self] type, data in
+                    self?.handlePeerData(peerId: peerId, type: type, data: data)
+                },
+                onStream: { [weak self] stream in
+                    self?.onPeerStreamHandler?(stream, peerId)
+                },
+                onClose: { [weak self] in
+                    self?.handlePeerLeave(peerId)
+                }
+            )
+
+            peers[peerId] = peer
+            // Don't call initiate() - we're responding to their offer
+            peer.handleSignal(signal)
         }
     }
 
     private func handlePeerConnect(_ peerId: String) {
+        print("✅ Room: Peer connected: \(peerId)")
         onPeerJoinHandler?(peerId)
     }
 
     private func handlePeerLeave(_ peerId: String) {
+        print("🚪 Room: Peer left: \(peerId)")
         peers.removeValue(forKey: peerId)
         onPeerLeaveHandler?(peerId)
     }

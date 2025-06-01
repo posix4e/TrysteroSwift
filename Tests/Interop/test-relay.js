@@ -22,7 +22,7 @@ wss.on('connection', (ws) => {
         // Store and broadcast event
         const event = msg[1]
         events.push(event)
-        console.log(`📨 Event: ${event.kind} from ${event.pubkey.substring(0, 8)}...`)
+        console.log(`📨 Event: ${event.kind} from ${event.pubkey.substring(0, 8)}... content: ${event.content}`)
 
         // Send to all matching subscriptions
         for (const [subId, sub] of subscriptions) {

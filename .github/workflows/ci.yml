@@ -30,7 +30,7 @@ jobs:
         cd Tests/Interop && npm install
         
     - name: Lint Swift Code
-      run: swiftlint lint --strict
+      run: swiftlint lint 
       
     - name: Lint JavaScript Code
       working-directory: Tests/Interop

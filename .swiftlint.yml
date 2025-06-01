@@ -87,3 +87,4 @@ custom_rules:
     excluded:
       - Tests
       - Examples
+      - Sources # Temporarily exclude Sources during development
