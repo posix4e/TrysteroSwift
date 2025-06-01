@@ -26,12 +26,17 @@ const room = joinRoom({
 
 console.log('📡 JS: Room created, waiting for peers...')
 
+// Log when we connect/disconnect from relays
+room.onPeerJoin = room.onPeerJoin || (() => {})
+room.onPeerLeave = room.onPeerLeave || (() => {})
+
 const [sendTest, onTest] = room.makeAction('test')
 
 let testPassed = false
 
 room.onPeerJoin(peerId => {
   console.log(`✅ JS: Connected to peer ${peerId}`)
+  console.log(`📤 JS: Sending message to ${peerId}`)
   sendTest({message: 'Hello from JavaScript!'}, peerId)
 })
 

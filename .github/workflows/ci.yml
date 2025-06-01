@@ -49,9 +49,11 @@ jobs:
         
         # Start local test relay
         cd Tests/Interop
+        echo "Starting test relay..."
         node test-relay.js 2>&1 | sed 's/^/[RELAY] /' &
         RELAY_PID=$!
-        sleep 1
+        sleep 2
+        echo "Test relay PID: $RELAY_PID"
         
         # Use local relay for tests (supports comma-separated list)
         export TEST_RELAY_URL="ws://localhost:7777"
@@ -62,7 +64,7 @@ jobs:
         cd ../..
         
         # Give JS peer time to start
-        sleep 2
+        sleep 5
         
         # Run Swift test
         swift test --filter IntegrationTest.testJavaScriptInterop
