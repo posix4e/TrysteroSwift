@@ -41,6 +41,7 @@ jobs:
         cache-dependency-path: Tests/Interop/package.json
           
     - name: Run interop test
+      id: interop
       working-directory: Tests/Interop
       run: |
         npm install
@@ -70,8 +71,8 @@ jobs:
         '
         cd Tests/Interop
         
-        # Start Node.js harness with enhanced logging
-        echo "🚀 Starting Node.js harness..."
+        # Start Node.js harness in background
+        echo "🚀 Starting Node.js Trystero harness..."
         node trystero-node.js &
         NODE_PID=$!
         
@@ -81,92 +82,70 @@ jobs:
         # Check if Node.js process is still running
         if ! kill -0 $NODE_PID 2>/dev/null; then
           echo "❌ Node.js harness failed to start or crashed"
-          echo "⚠️ This may be due to Nostr relay connectivity issues in CI environment"
-          echo "✅ Protocol verification passed - considering this a success for CI"
-          exit 0  # Don't fail CI due to relay connectivity issues
+          echo "🔍 Check the Node.js logs above for specific errors"
+          exit 1
         fi
         echo "✅ Node.js harness is running (PID: $NODE_PID)"
         
-        # Run Swift test with timeout and capture output
+        # Run Swift interoperability test with timeout
         echo "🧪 Running Swift interoperability test..."
         cd ../..
         
-        # Create a script to run Swift test with timeout (macOS compatible)
-        cat > run_swift_test.sh << 'EOF'
-        #!/bin/bash
-        # Run Swift test with timeout using background process and kill
-        swift test --filter testTrysteroJSInteroperability 2>&1 | tee swift_test_output.log &
-        SWIFT_TEST_PID=$!
-        
-        # Wait for 45 seconds or until process completes
-        sleep 45 && kill $SWIFT_TEST_PID 2>/dev/null && echo "Test timed out" >> swift_test_output.log &
-        TIMEOUT_PID=$!
-        
-        wait $SWIFT_TEST_PID 2>/dev/null
-        TEST_EXIT=$?
-        kill $TIMEOUT_PID 2>/dev/null || true
-        
-        echo "Swift test exit code: $TEST_EXIT" >> swift_test_output.log
-        exit $TEST_EXIT
-        EOF
-        chmod +x run_swift_test.sh
-        
-        # Run Swift test in background
-        ./run_swift_test.sh &
-        SWIFT_PID=$!
-        
-        # Monitor both processes
-        echo "⏳ Monitoring test progress (45 second timeout)..."
-        START_TIME=$(date +%s)
-        
-        while kill -0 $SWIFT_PID 2>/dev/null && kill -0 $NODE_PID 2>/dev/null; do
-          CURRENT_TIME=$(date +%s)
-          ELAPSED=$((CURRENT_TIME - START_TIME))
+        # Run Swift test with timeout using Perl alarm
+        perl -e 'alarm shift; exec @ARGV' 45 swift test --filter testTrysteroJSInteroperability || {
+          EXIT_CODE=$?
           
-          if [ $ELAPSED -gt 50 ]; then
-            echo "⏰ Test timeout reached"
-            break
+          if [ $EXIT_CODE -eq 142 ]; then
+            echo "❌ TIMEOUT: Swift test reached 45 second timeout"
+            echo "⚠️  This could indicate:"
+            echo "   - Slow relay connectivity"  
+            echo "   - Peer discovery issues"
+            echo "   - WebRTC signaling problems"
+            FINAL_RESULT=1
+          elif [ $EXIT_CODE -ne 0 ]; then
+            echo "❌ FAILED: Swift test failed (exit code: $EXIT_CODE)"
+            echo "🔍 This indicates real interoperability issues"
+            FINAL_RESULT=1
+          else
+            echo "✅ Swift test completed successfully"
+            FINAL_RESULT=0
           fi
-          
-          sleep 2
-        done
+        }
         
-        # Check results
-        wait $SWIFT_PID 2>/dev/null || true
-        SWIFT_EXIT=$?
-        
-        echo "📊 Test Results:"
-        if [ -f swift_test_output.log ]; then
-          echo "Swift test output:"
-          cat swift_test_output.log | grep -E "(✅|❌|🎉|Swift Debug|peers connected|Successfully joined|timeout|error)" | head -20
+        # Clean up Node.js process
+        cd Tests/Interop
+        if kill -0 $NODE_PID 2>/dev/null; then
+          kill $NODE_PID 2>/dev/null || true
+          wait $NODE_PID 2>/dev/null || true
         fi
         
-        # Determine final result
-        if [ $SWIFT_EXIT -eq 0 ]; then
-          echo "🎉 SUCCESS: Swift interop test passed!"
-          FINAL_RESULT=0
-        elif [ $SWIFT_EXIT -eq 124 ]; then
-          echo "⏰ TIMEOUT: Test reached timeout - infrastructure working but peer discovery taking longer than expected"
-          echo "✅ This indicates the protocol is working but may need relay connectivity optimization"
-          FINAL_RESULT=0  # Consider timeout as success since infrastructure is working
-        elif [ $SWIFT_EXIT -eq 1 ] && grep -q "No peers connected" swift_test_output.log 2>/dev/null; then
-          echo "⚠️ PEER DISCOVERY: Swift test couldn't connect to Node.js peer"
-          echo "✅ This may be due to Nostr relay connectivity issues in CI environment"
-          echo "✅ Protocol verification passed - considering this acceptable for CI"
-          FINAL_RESULT=0  # Don't fail CI due to peer discovery issues
-        else
-          echo "❌ FAILED: Swift interop test failed (exit code: $SWIFT_EXIT)"
-          FINAL_RESULT=1
-        fi
-        
-        # Clean up
-        kill $NODE_PID 2>/dev/null || true
-        rm -f run_swift_test.sh swift_test_output.log
-        
-        # Final status
-        if [ $FINAL_RESULT -eq 0 ]; then
+        # Final result
+        if [ "${FINAL_RESULT:-0}" -eq 0 ]; then
           echo "✅ Interoperability test completed successfully"
+          echo "🎉 TrysteroSwift successfully communicates with Trystero.js!"
         else
           echo "❌ Interoperability test failed"
+          echo "🔍 TrysteroSwift cannot properly communicate with Trystero.js"
           exit 1
+        fi
+        
+    - name: Interop Test Summary
+      if: always()
+      run: |
+        echo "📊 === INTEROPERABILITY TEST SUMMARY ==="
+        if [ "${{ steps.interop.outcome }}" == "success" ]; then
+          echo "✅ Status: PASSED - TrysteroSwift is compatible with Trystero.js"
+          echo "🎯 This confirms cross-platform peer-to-peer communication works"
+          echo "🚀 TrysteroSwift is ready for production use!"
+        else
+          echo "❌ Status: FAILED - TrysteroSwift cannot communicate with Trystero.js"
+          echo "🚨 This is a CRITICAL FAILURE - the library is broken"
+          echo "🔍 This indicates problems with:"
+          echo "   - Nostr protocol implementation"
+          echo "   - WebRTC signaling compatibility" 
+          echo "   - Network connectivity"
+          echo "   - Timing issues"
+          echo ""
+          echo "🛠️  To debug locally: cd Tests/Interop && npm install && node trystero-node.js"
+          echo "⚠️  The build will fail because interoperability is mandatory"
         fi
