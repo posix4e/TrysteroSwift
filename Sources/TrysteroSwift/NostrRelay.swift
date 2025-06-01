@@ -114,7 +114,8 @@ class NostrRelay: NostrClientDelegate {
         await Task { @MainActor in
             await withCheckedContinuation { continuation in
                 client.send(event: event) { _ in
-                    continuation.resume()
+                    // Resume continuation outside of MainActor context
+                    Task { continuation.resume() }
                 }
             }
         }.value
@@ -176,6 +177,7 @@ class NostrRelay: NostrClientDelegate {
             Task { @MainActor in
                 client.send(event: event) { _ in
                     // Best effort - presence announcements can fail
+                    // Callback may be on different thread, but we don't need to do anything
                 }
             }
         } catch {
