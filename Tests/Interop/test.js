@@ -3,10 +3,12 @@
 // Minimal test harness for CI - verifies Swift <-> JS communication
 
 import * as polyfill from 'node-datachannel/polyfill'
+import {WebSocket} from 'ws'
 import {joinRoom} from 'trystero/nostr'
 
-// Apply polyfill globally
+// Apply polyfills globally
 Object.assign(globalThis, polyfill)
+globalThis.WebSocket = WebSocket
 
 const roomId = process.env.INTEROP_ROOM_ID || 'swift-js-test'
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 import * as polyfill from 'node-datachannel/polyfill'
+import {WebSocket} from 'ws'
 import {joinRoom} from 'trystero/nostr'
 import readline from 'readline'
 
-// Apply polyfill globally
+// Apply polyfills globally
 Object.assign(globalThis, polyfill)
+globalThis.WebSocket = WebSocket
 
 // Configuration
 const roomName = process.env.CHAT_ROOM || 'trystero-chat-demo'
