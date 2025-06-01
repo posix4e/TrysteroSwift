@@ -16,7 +16,7 @@ console.log('🧪 JavaScript test peer starting...')
 console.log(`📍 Room: ${roomId}`)
 console.log('⏰ Time:', new Date().toISOString())
 
-const relayUrlsEnv = process.env.TEST_RELAY_URL || 'wss://relay.nostr.band'
+const relayUrlsEnv = process.env.TEST_RELAY_URL || 'wss://relay.nostr.band,wss://nostr-pub.wellorder.net,wss://relay.damus.io'
 const relayUrls = relayUrlsEnv.split(',').map(url => url.trim())
 console.log(`🔌 Using relays: ${relayUrls.join(', ')}`)
 const room = joinRoom({

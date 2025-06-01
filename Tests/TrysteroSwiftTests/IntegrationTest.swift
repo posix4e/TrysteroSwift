@@ -31,7 +31,7 @@ final class IntegrationTest: XCTestCase {
         print("📍 Room ID: \(roomId)")
         print("⏳ Expecting JS peer: \(expectJS)")
 
-        let relayUrlsEnv = ProcessInfo.processInfo.environment["TEST_RELAY_URL"] ?? "wss://relay.nostr.band"
+        let relayUrlsEnv = ProcessInfo.processInfo.environment["TEST_RELAY_URL"] ?? "wss://relay.nostr.band,wss://nostr-pub.wellorder.net,wss://relay.damus.io"
         let relayUrls = relayUrlsEnv.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
         print("🔌 Using relays: \(relayUrls.joined(separator: ", "))")
         let config = Config(
