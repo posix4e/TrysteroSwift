@@ -209,7 +209,7 @@ class NostrRelay: NostrClientDelegate {
 
         if let data = content.data(using: .utf8),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            
+
             // Check if it's a presence announcement (just {peerId: "..."})
             if let peerId = json["peerId"] as? String, json["type"] == nil {
                 onPeerPresence?(peerId)
