@@ -71,32 +71,63 @@ jobs:
         '
         cd Tests/Interop
         
-        # Run Node.js interoperability test
-        echo "🚀 Running Node.js Trystero interoperability test..."
+        # Start Node.js harness in background
+        echo "🚀 Starting Node.js Trystero harness..."
+        node trystero-node.js &
+        NODE_PID=$!
         
-        # Run with timeout to avoid hanging CI (using portable Perl alarm)
-        perl -e 'alarm shift; exec @ARGV' 60 node trystero-node.js || {
+        # Give Node.js time to connect to relays
+        sleep 8
+        
+        # Check if Node.js process is still running
+        if ! kill -0 $NODE_PID 2>/dev/null; then
+          echo "❌ Node.js harness failed to start or crashed"
+          echo "🔍 Check the Node.js logs above for specific errors"
+          exit 1
+        fi
+        echo "✅ Node.js harness is running (PID: $NODE_PID)"
+        
+        # Run Swift interoperability test with timeout
+        echo "🧪 Running Swift interoperability test..."
+        cd ../..
+        
+        # Run Swift test with timeout using Perl alarm
+        perl -e 'alarm shift; exec @ARGV' 45 swift test --filter testTrysteroJSInteroperability || {
           EXIT_CODE=$?
           
           if [ $EXIT_CODE -eq 142 ]; then
-            echo "❌ TIMEOUT: Test reached 60 second timeout"
+            echo "❌ TIMEOUT: Swift test reached 45 second timeout"
             echo "⚠️  This could indicate:"
             echo "   - Slow relay connectivity"  
-            echo "   - WebRTC signaling issues"
-            echo "   - Infrastructure problems"
-            exit 1
+            echo "   - Peer discovery issues"
+            echo "   - WebRTC signaling problems"
+            FINAL_RESULT=1
           elif [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ FAILED: Node.js test failed (exit code: $EXIT_CODE)"
-            echo "🔍 This indicates real issues with:"
-            echo "   - Trystero.js dependencies"
-            echo "   - Protocol implementation"
-            echo "   - Environment setup"
-            exit 1
+            echo "❌ FAILED: Swift test failed (exit code: $EXIT_CODE)"
+            echo "🔍 This indicates real interoperability issues"
+            FINAL_RESULT=1
+          else
+            echo "✅ Swift test completed successfully"
+            FINAL_RESULT=0
           fi
         }
         
-        echo "✅ Interoperability test completed successfully"
-        echo "🎉 Trystero.js implementation verified working!"
+        # Clean up Node.js process
+        cd Tests/Interop
+        if kill -0 $NODE_PID 2>/dev/null; then
+          kill $NODE_PID 2>/dev/null || true
+          wait $NODE_PID 2>/dev/null || true
+        fi
+        
+        # Final result
+        if [ "${FINAL_RESULT:-0}" -eq 0 ]; then
+          echo "✅ Interoperability test completed successfully"
+          echo "🎉 TrysteroSwift successfully communicates with Trystero.js!"
+        else
+          echo "❌ Interoperability test failed"
+          echo "🔍 TrysteroSwift cannot properly communicate with Trystero.js"
+          exit 1
+        fi
         
     - name: Interop Test Summary
       if: always()
