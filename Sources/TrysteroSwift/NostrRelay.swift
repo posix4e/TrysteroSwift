@@ -62,7 +62,7 @@ class NostrRelay: NostrClientDelegate {
         var event = Event(
             pubkey: keyPair.publicKey,
             createdAt: Timestamp(date: Date()),
-            kind: .custom(29000), // Ephemeral event
+            kind: .custom(22777), // Trystero event kind
             tags: [
                 Tag(id: "t", otherInformation: "trystero-\(namespace)"),
                 Tag(id: "p", otherInformation: peerId)
@@ -111,7 +111,7 @@ class NostrRelay: NostrClientDelegate {
 
     private func subscribeToRoom() {
         let filter = Filter(
-            kinds: [.custom(29000)],
+            kinds: [.custom(22777)],
             tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")]
         )
 
@@ -126,7 +126,7 @@ class NostrRelay: NostrClientDelegate {
         var event = Event(
             pubkey: keyPair.publicKey,
             createdAt: Timestamp(date: Date()),
-            kind: .custom(29000),
+            kind: .custom(22777),
             tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")],
             content: "{\"type\":\"presence\",\"peerId\":\"\(selfId)\"}"
         )
