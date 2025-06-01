@@ -47,11 +47,14 @@ jobs:
         export INTEROP_ROOM_ID="ci-test-$(date +%s)"
         export EXPECT_JS_PEER="true"
         
-        # Start JavaScript peer in background
+        # Start JavaScript peer in background with output
         cd Tests/Interop
-        node test.js &
+        node test.js 2>&1 | sed 's/^/[JS] /' &
         JS_PID=$!
         cd ../..
+        
+        # Give JS peer time to start
+        sleep 2
         
         # Run Swift test
         swift test --filter IntegrationTest.testJavaScriptInterop

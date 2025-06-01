@@ -12,11 +12,14 @@ const roomId = process.env.INTEROP_ROOM_ID || 'swift-js-test'
 
 console.log('🧪 JavaScript test peer starting...')
 console.log(`📍 Room: ${roomId}`)
+console.log('⏰ Time:', new Date().toISOString())
 
 const room = joinRoom({
   appId: 'interop-test',
   relayUrls: ['wss://relay.damus.io', 'wss://nos.lol']
 }, roomId)
+
+console.log('📡 JS: Room created, waiting for peers...')
 
 const [sendTest, onTest] = room.makeAction('test')
 
@@ -41,12 +44,19 @@ onTest((data, peerId) => {
   }
 })
 
-// Timeout after 30 seconds
+// Timeout after 70 seconds (longer than Swift's 60s timeout)
 setTimeout(() => {
   if (!testPassed) {
     console.error('❌ JS: Timeout - no Swift peer connected')
     process.exit(1)
   }
-}, 30000)
+}, 70000)
+
+// Heartbeat every 10 seconds to show we're alive
+let heartbeatCount = 0
+setInterval(() => {
+  heartbeatCount++
+  console.log(`💓 JS: Heartbeat #${heartbeatCount} - still waiting...`)
+}, 10000)
 
 console.log('⏳ JS: Waiting for Swift peer...')
