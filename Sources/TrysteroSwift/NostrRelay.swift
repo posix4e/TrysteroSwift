@@ -1,5 +1,5 @@
 import Foundation
-import NostrClient
+@preconcurrency import NostrClient
 import Nostr
 
 /// Handles Nostr relay communication for signaling
@@ -142,7 +142,7 @@ class NostrRelay: NostrClientDelegate {
         // Re-announce periodically
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
-            announcePresence()
+            self.announcePresence()
         }
     }
 
