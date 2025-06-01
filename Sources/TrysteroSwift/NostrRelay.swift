@@ -111,16 +111,13 @@ class NostrRelay: NostrClientDelegate {
         try event.sign(with: keyPair)
 
         // Send event with callback
-        await withCheckedContinuation { continuation in
-            let eventToSend = event
-            Task { @MainActor in
-                client.send(event: eventToSend) { _ in
-                    Task {
-                        continuation.resume()
-                    }
+        await Task { @MainActor in
+            await withCheckedContinuation { continuation in
+                client.send(event: event) { _ in
+                    continuation.resume()
                 }
             }
-        }
+        }.value
     }
 
     // MARK: - Private
