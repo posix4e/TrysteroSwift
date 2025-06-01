@@ -47,10 +47,7 @@ final class IntegrationTest: XCTestCase {
             let connected = XCTestExpectation(description: "JS peer connected")
             let received = XCTestExpectation(description: "Received JS message")
 
-            // Add a small delay to allow relay connections
-            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
-            print("🔄 Swift: Ready to connect")
-
+            // Set up handlers BEFORE the delay to avoid missing early connections
             room.onPeerJoin { peerId in
                 print("✅ Swift: Connected to peer \(peerId)")
                 sendTest(["message": "Hello from Swift!"], peerId)
@@ -61,6 +58,10 @@ final class IntegrationTest: XCTestCase {
                 print("📥 Swift: Received from \(peerId): \(data)")
                 received.fulfill()
             }
+
+            // Add a small delay to allow relay connections
+            try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            print("🔄 Swift: Ready to connect")
 
             await fulfillment(of: [connected, received], timeout: 60)
             print("✅ Swift: JavaScript interop successful")
