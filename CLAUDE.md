@@ -1,109 +1,137 @@
 # TrysteroSwift Development Notes
 
-## Project Overview
-TrysteroSwift is a Swift library that provides Trystero-compatible peer-to-peer networking using Nostr for peer discovery and WebRTC for data channels. It enables decentralized, serverless communication between peers in named rooms.
+## Overview
+TrysteroSwift is a Swift implementation of Trystero.js, providing serverless WebRTC peer-to-peer communication using Nostr for signaling. The library is designed to be API-compatible with the JavaScript version.
 
 ## Architecture
 
-### Core Components
-- **TrysteroRoom**: Main class for room-based P2P communication
-- **TrysteroNostrClient**: Handles Nostr relay connections and signaling
-- **WebRTCManager**: Manages WebRTC peer connections and data channels
-- **Trystero**: Public API factory class for creating rooms
+### Core Design Principles
+1. **API Compatibility** - Match Trystero.js API as closely as possible
+2. **Simplicity** - Minimal abstraction layers
+3. **Swift Conventions** - Use modern Swift patterns (async/await, Sendable)
+4. **Bidirectional Communication** - Full interoperability with JavaScript peers
 
-### Dependencies
-- **WebRTC**: `stasel/WebRTC` (release-M137) - WebRTC framework for P2P connections
-- **NostrClient**: `Galaxoid-Labs/NostrClient` (main) - Nostr protocol implementation
+### Key Components
 
-### Nostr Integration
-- Uses Nostr event kind `29000` (ephemeral events) for WebRTC signaling
-- Room identification via hashtag: `trystero-{roomId}`
-- Peer targeting via pubkey tags when needed
-- Automatic key pair generation for each room instance
+#### `Trystero.swift`
+- Entry point matching `joinRoom()` from Trystero.js
+- Configuration struct with same options as JS version
 
-### WebRTC Flow
-1. Peers announce presence via Nostr events
-2. WebRTC offers/answers exchanged through Nostr
-3. ICE candidates shared via Nostr signaling
-4. Direct P2P data channels established
-5. Room communication bypasses Nostr relays
+#### `Room.swift`
+- Main room class with `makeAction()` method
+- Event handlers: `onPeerJoin`, `onPeerLeave`, `onPeerStream`
+- Manages peer connections and action routing
 
-## API Design
+#### `Peer.swift`
+- WebRTC peer connection management
+- Implements "perfect negotiation" pattern
+- Handles offer/answer exchange and ICE candidates
+- Data channel creation and management
 
-### Public Interface
-```swift
-// Create and join a room
-let room = try Trystero.joinRoom(config: RoomConfig(relays: ["wss://relay.damus.io"]), roomId: "my-room")
-try await room.join()
+#### `NostrRelay.swift`
+- Nostr protocol integration for signaling
+- Uses ephemeral events (kind 29000)
+- Room namespacing with hashtags
+- Peer presence announcements
 
-// Send data to all peers or specific peer
-try room.send(data)
-try room.send(data, to: peerId)
+#### `WebRTCClient.swift`
+- WebRTC factory singleton
+- Async/await extensions for WebRTC APIs
 
-// Event handlers
-room.onPeerJoin { peerId in }
-room.onPeerLeave { peerId in }
-room.onData { data, peerId in }
+## Trystero.js Compatibility
 
-// Clean up
-await room.leave()
+### API Mapping
+```javascript
+// Trystero.js
+import {joinRoom} from 'trystero/nostr'
+const room = joinRoom({appId: 'app'}, 'room')
+const [send, get] = room.makeAction('chat')
 ```
 
-### Error Handling
-- `TrysteroError.peerNotConnected` - Peer not available
-- `TrysteroError.connectionFailed` - WebRTC connection issues
-- `TrysteroError.nostrError` - Nostr-related failures
+```swift
+// TrysteroSwift
+let room = Trystero.joinRoom(Config(appId: "app"), "room")
+let (send, get) = room.makeAction("chat")
+```
 
-## Development Status
-
-### Completed ✅
-- Basic room management structure
-- WebRTC peer connection handling
-- Nostr client integration with proper API usage
-- Data channel creation and messaging
-- Async/await support throughout
-- Sendable compliance for concurrency
-- Package dependencies and build configuration
-
-### TODO 🚧
-- Complete WebRTC signaling implementation
-- ICE candidate exchange via Nostr
-- Peer presence announcements
-- Event handler implementations
-- Connection state management
-- Reconnection logic
-- Error recovery mechanisms
-- Unit tests
-
-## Build Instructions
-
-### Requirements
-- iOS 17+ / macOS 14+
-- Swift 6.0+
-- Xcode with Swift Package Manager
-
-### Dependencies
-The package automatically fetches:
-- WebRTC framework (binary)
-- NostrClient Swift package
-- Associated Nostr protocol libraries
-
-### Known Issues
-- WebRTC RTCSessionDescription concurrency warnings (resolved with manual copying)
-- Nostr event filtering needs refinement for room isolation
-- Missing ICE candidate handling implementation
+### Key Differences
+1. Swift uses tuples for action pairs vs JS array destructuring
+2. Optional parameters use Swift optionals vs JS undefined
+3. Callbacks use Swift closures vs JS functions
+4. Data can be Any type, automatically serialized to JSON
 
 ## Testing Strategy
-1. Unit tests for individual components
-2. Integration tests for Nostr + WebRTC flow  
-3. Multi-device testing for P2P scenarios
-4. Relay compatibility testing
-5. Performance testing with multiple peers
+
+### Unit Tests
+- Basic API functionality
+- Configuration options
+- Event handler registration
+
+### Integration Tests
+- JavaScript interoperability
+- Peer discovery via Nostr
+- Data exchange between Swift and JS peers
+- Multiple action types
+
+### Test Infrastructure
+```
+Tests/
+├── TrysteroSwiftTests/     # Swift unit tests
+├── Interop/                # JS compatibility tests
+│   ├── trystero-node.js    # Node.js test harness
+│   └── tests/              # Individual test scenarios
+└── test-runner.js          # Test orchestration
+```
+
+## Implementation Status
+
+### ✅ Completed
+- Core room management
+- Trystero.js compatible API
+- WebRTC peer connections
+- Nostr signaling
+- Data channel communication
+- Action system (makeAction)
+- Peer event handling
+- JavaScript interoperability
+
+### 🚧 TODO
+- Media stream support (audio/video)
+- Binary data optimization
+- Relay connection resilience
+- Performance optimizations
+- Additional Trystero strategies (IPFS, BitTorrent)
+
+## Development Guidelines
+
+### Adding Features
+1. Check Trystero.js implementation first
+2. Match the JavaScript API exactly
+3. Test with both Swift and JS peers
+4. Update compatibility tests
+
+### Code Style
+- Use modern Swift patterns
+- Prefer clarity over cleverness
+- Add inline documentation for WebRTC complexity
+- Keep Trystero.js parity in mind
+
+## Debugging
+
+### Common Issues
+1. **Peers don't connect**: Check relay connectivity
+2. **Data not received**: Verify action names match
+3. **WebRTC failures**: Check ICE server configuration
+4. **Timing issues**: Nostr events are eventually consistent
+
+### Debug Output
+The library includes debug logging that can be enabled:
+- Peer connection state changes
+- Nostr event flow
+- WebRTC signaling steps
 
 ## Future Enhancements
-- Support for different Nostr relay strategies
-- Custom event kinds for specialized use cases
-- Encryption layer for enhanced privacy
-- Bandwidth optimization
-- Room moderation features
-- Persistent peer discovery
+1. **Additional Strategies**: Support IPFS, BitTorrent, Firebase
+2. **Performance**: Connection pooling, binary protocols
+3. **Features**: File transfer, streaming, encryption
+4. **Platforms**: Linux support, WASM compatibility

@@ -1,0 +1,25 @@
+{
+  "name": "trystero-swift-interop-test",
+  "version": "1.0.0",
+  "description": "Interoperability test between TrysteroSwift and Trystero.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js",
+    "chat": "node chat.js"
+  },
+  "dependencies": {
+    "trystero": "^0.21.4",
+    "node-datachannel": "^0.27.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "trystero",
+    "webrtc",
+    "p2p",
+    "swift"
+  ],
+  "author": "TrysteroSwift Team",
+  "license": "MIT"
+}

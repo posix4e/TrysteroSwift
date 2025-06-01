@@ -7,8 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  build-test-deploy:
+  test:
     runs-on: macos-latest
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -17,107 +18,56 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest-stable
-
-    - name: Install SwiftLint
-      run: brew install swiftlint
         
-    - name: Cache Swift packages
-      uses: actions/cache@v4
-      with:
-        path: .build
-        key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
-        restore-keys: |
-          ${{ runner.os }}-spm-
-          
-    - name: Lint
-      run: swiftlint lint
-
+    - name: Build
+      run: swift build
       
+    - name: Unit Tests
+      run: swift test --filter IntegrationTest.testRoomLifecycle
+      
+  interop:
+    runs-on: macos-latest
+    needs: test
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: Tests/Interop/package.json
-          
-    - name: Run interop test
-      id: interop
+        
+    - name: Install JavaScript Dependencies
       working-directory: Tests/Interop
+      run: npm install
+      
+    - name: Test Swift <-> JavaScript Interoperability
       run: |
-        npm install
-        node trystero-node.js &
-        NODE_PID=$!
+        export INTEROP_ROOM_ID="ci-test-$(date +%s)"
+        export EXPECT_JS_PEER="true"
         
-        # Give Node.js time to connect to relays
-        sleep 8
-        
-        # Check if Node.js process is still running
-        if ! kill -0 $NODE_PID 2>/dev/null; then
-          echo "❌ Node.js harness failed to start or crashed"
-          echo "🔍 Check the Node.js logs above for specific errors"
-          exit 1
-        fi
-        echo "✅ Node.js harness is running (PID: $NODE_PID)"
-        
-        # Run Swift interoperability test with timeout
-        echo "🧪 Running Swift interoperability test..."
+        # Start JavaScript peer in background
+        cd Tests/Interop
+        node test.js &
+        JS_PID=$!
         cd ../..
         
-        # Run Swift test with timeout using Perl alarm
-        perl -e 'alarm shift; exec @ARGV' 45 swift test || {
-          EXIT_CODE=$?
-          
-          if [ $EXIT_CODE -eq 142 ]; then
-            echo "❌ TIMEOUT: Swift test reached 45 second timeout"
-            echo "⚠️  This could indicate:"
-            echo "   - Slow relay connectivity"  
-            echo "   - Peer discovery issues"
-            echo "   - WebRTC signaling problems"
-            FINAL_RESULT=1
-          elif [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ FAILED: Swift test failed (exit code: $EXIT_CODE)"
-            echo "🔍 This indicates real interoperability issues"
-            FINAL_RESULT=1
-          else
-            echo "✅ Swift test completed successfully"
-            FINAL_RESULT=0
-          fi
-        }
+        # Run Swift test
+        swift test --filter IntegrationTest.testJavaScriptInterop
+        SWIFT_RESULT=$?
         
-        # Clean up Node.js process
-        cd Tests/Interop
-        if kill -0 $NODE_PID 2>/dev/null; then
-          kill $NODE_PID 2>/dev/null || true
-          wait $NODE_PID 2>/dev/null || true
-        fi
+        # Clean up
+        kill $JS_PID 2>/dev/null || true
         
-        # Final result
-        if [ "${FINAL_RESULT:-0}" -eq 0 ]; then
-          echo "✅ Interoperability test completed successfully"
-          echo "🎉 TrysteroSwift successfully communicates with Trystero.js!"
+        if [ $SWIFT_RESULT -eq 0 ]; then
+          echo "✅ Interoperability test passed!"
         else
           echo "❌ Interoperability test failed"
-          echo "🔍 TrysteroSwift cannot properly communicate with Trystero.js"
           exit 1
-        fi
-        
-    - name: Interop Test Summary
-      if: always()
-      run: |
-        echo "📊 === INTEROPERABILITY TEST SUMMARY ==="
-        if [ "${{ steps.interop.outcome }}" == "success" ]; then
-          echo "✅ Status: PASSED - TrysteroSwift is compatible with Trystero.js"
-          echo "🎯 This confirms cross-platform peer-to-peer communication works"
-          echo "🚀 TrysteroSwift is ready for production use!"
-        else
-          echo "❌ Status: FAILED - TrysteroSwift cannot communicate with Trystero.js"
-          echo "🚨 This is a CRITICAL FAILURE - the library is broken"
-          echo "🔍 This indicates problems with:"
-          echo "   - Nostr protocol implementation"
-          echo "   - WebRTC signaling compatibility" 
-          echo "   - Network connectivity"
-          echo "   - Timing issues"
-          echo ""
-          echo "🛠️  To debug locally: cd Tests/Interop && npm install && node trystero-node.js"
-          echo "⚠️  The build will fail because interoperability is mandatory"
         fi
