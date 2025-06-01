@@ -42,8 +42,9 @@ class NostrRelay: NostrClientDelegate {
         // Subscribe to room events
         subscribeToRoom()
 
-        // Announce presence after a short delay to ensure connection
-        try await Task.sleep(nanoseconds: 500_000_000) // 500ms
+        // Announce presence after a delay with jitter to avoid rate limits
+        let jitter = UInt64.random(in: 0...2_000_000_000) // 0-2 seconds random
+        try await Task.sleep(nanoseconds: 3_000_000_000 + jitter) // 3-5 seconds
         announcePresence()
     }
 
@@ -139,9 +140,9 @@ class NostrRelay: NostrClientDelegate {
             // Non-fatal: presence will be re-announced
         }
 
-        // Re-announce periodically
+        // Re-announce periodically with longer interval to avoid rate limits
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
+            try? await Task.sleep(nanoseconds: 120_000_000_000) // 120 seconds
             self.announcePresence()
         }
     }
