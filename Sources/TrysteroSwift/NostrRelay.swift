@@ -111,8 +111,10 @@ class NostrRelay: NostrClientDelegate {
 
         // Send event with callback
         await withCheckedContinuation { continuation in
-            client.send(event: event) { _ in
-                continuation.resume()
+            Task { @MainActor in
+                client.send(event: event) { _ in
+                    continuation.resume()
+                }
             }
         }
     }
