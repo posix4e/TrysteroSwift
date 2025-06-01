@@ -18,7 +18,11 @@ console.log('⏰ Time:', new Date().toISOString())
 
 const room = joinRoom({
   appId: 'interop-test',
-  relayUrls: ['wss://relay.damus.io', 'wss://nos.lol']
+  relayUrls: [
+    'wss://relay.nostr.band',
+    'wss://nostr-pub.wellorder.net', 
+    'wss://relay.damus.io'
+  ]
 }, roomId)
 
 console.log('📡 JS: Room created, waiting for peers...')

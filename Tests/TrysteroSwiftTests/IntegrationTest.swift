@@ -33,7 +33,11 @@ final class IntegrationTest: XCTestCase {
 
         let config = Config(
             appId: "interop-test",
-            relayUrls: ["wss://relay.damus.io", "wss://nos.lol"]
+            relayUrls: [
+                "wss://relay.nostr.band",
+                "wss://nostr-pub.wellorder.net",
+                "wss://relay.damus.io"
+            ]
         )
 
         let room = Trystero.joinRoom(config, roomId)
