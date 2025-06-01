@@ -11,6 +11,8 @@ excluded:
   - .build
   - Package.swift
   - Tests/Interop
+  - Examples/Chat/.build
+  - "**/.build"
 
 # Rules
 disabled_rules:

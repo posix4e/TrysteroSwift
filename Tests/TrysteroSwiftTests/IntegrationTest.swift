@@ -26,7 +26,7 @@ final class IntegrationTest: XCTestCase {
         // This test is run by CI with a JavaScript peer
         let roomId = ProcessInfo.processInfo.environment["INTEROP_ROOM_ID"] ?? "swift-js-test"
         let expectJS = ProcessInfo.processInfo.environment["EXPECT_JS_PEER"] == "true"
-        
+
         print("🧪 Swift: Starting interop test")
         print("📍 Room ID: \(roomId)")
         print("⏳ Expecting JS peer: \(expectJS)")
@@ -43,7 +43,7 @@ final class IntegrationTest: XCTestCase {
             // Wait for JS peer and exchange messages
             let connected = XCTestExpectation(description: "JS peer connected")
             let received = XCTestExpectation(description: "Received JS message")
-            
+
             // Add a small delay to allow relay connections
             try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
             print("🔄 Swift: Ready to connect")
