@@ -88,7 +88,7 @@ class NostrRelay: NostrClientDelegate {
         client.disconnect()
     }
 
-    func sendSignal(_ signal: Signal, to peerId: String) async throws {
+    func sendSignal(_ signal: Signal, to peerId: String) throws {
         // Look up the Nostr pubkey for this peerId
         guard let targetPubkey = peerIdToPubkey[peerId] else {
             // If we don't have the mapping, we can't send the signal
@@ -110,15 +110,10 @@ class NostrRelay: NostrClientDelegate {
 
         try event.sign(with: keyPair)
 
-        // Send event with callback
-        await Task { @MainActor in
-            await withCheckedContinuation { continuation in
-                client.send(event: event) { _ in
-                    // Resume continuation outside of MainActor context
-                    Task { continuation.resume() }
-                }
-            }
-        }.value
+        // Send event and don't wait for callback
+        client.send(event: event) { _ in
+            // Callback handled asynchronously
+        }
     }
 
     // MARK: - Private

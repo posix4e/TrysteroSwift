@@ -117,7 +117,7 @@ public class Room {
                 onSignal: { [weak self] signal in
                     Task { @MainActor in
                         do {
-                            try await self?.nostr.sendSignal(signal, to: peerId)
+                            try self?.nostr.sendSignal(signal, to: peerId)
                         } catch {
                             // Signal send failed - peer connection will timeout
                         }
