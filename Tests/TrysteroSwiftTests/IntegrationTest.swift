@@ -31,11 +31,12 @@ final class IntegrationTest: XCTestCase {
         print("📍 Room ID: \(roomId)")
         print("⏳ Expecting JS peer: \(expectJS)")
 
-        let relayUrl = ProcessInfo.processInfo.environment["TEST_RELAY_URL"] ?? "wss://relay.nostr.band"
-        print("🔌 Using relay: \(relayUrl)")
+        let relayUrlsEnv = ProcessInfo.processInfo.environment["TEST_RELAY_URL"] ?? "wss://relay.nostr.band"
+        let relayUrls = relayUrlsEnv.split(separator: ",").map { String($0.trimmingCharacters(in: .whitespaces)) }
+        print("🔌 Using relays: \(relayUrls.joined(separator: ", "))")
         let config = Config(
             appId: "interop-test",
-            relayUrls: [relayUrl]
+            relayUrls: relayUrls
         )
 
         let room = Trystero.joinRoom(config, roomId)

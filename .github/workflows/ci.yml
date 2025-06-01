@@ -53,7 +53,7 @@ jobs:
         RELAY_PID=$!
         sleep 1
         
-        # Use local relay for tests
+        # Use local relay for tests (supports comma-separated list)
         export TEST_RELAY_URL="ws://localhost:7777"
         
         # Start JavaScript peer in background with output
