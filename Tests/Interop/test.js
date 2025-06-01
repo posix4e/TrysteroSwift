@@ -16,13 +16,11 @@ console.log('🧪 JavaScript test peer starting...')
 console.log(`📍 Room: ${roomId}`)
 console.log('⏰ Time:', new Date().toISOString())
 
+const relayUrl = process.env.TEST_RELAY_URL || 'wss://relay.nostr.band'
+console.log(`🔌 Using relay: ${relayUrl}`)
 const room = joinRoom({
   appId: 'interop-test',
-  relayUrls: [
-    'wss://relay.nostr.band',
-    'wss://nostr-pub.wellorder.net',
-    'wss://relay.damus.io'
-  ]
+  relayUrls: [relayUrl]
 }, roomId)
 
 console.log('📡 JS: Room created, waiting for peers...')

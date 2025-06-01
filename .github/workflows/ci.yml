@@ -47,8 +47,16 @@ jobs:
         export INTEROP_ROOM_ID="ci-test-$(date +%s)"
         export EXPECT_JS_PEER="true"
         
-        # Start JavaScript peer in background with output
+        # Start local test relay
         cd Tests/Interop
+        node test-relay.js 2>&1 | sed 's/^/[RELAY] /' &
+        RELAY_PID=$!
+        sleep 1
+        
+        # Use local relay for tests
+        export TEST_RELAY_URL="ws://localhost:7777"
+        
+        # Start JavaScript peer in background with output
         node test.js 2>&1 | sed 's/^/[JS] /' &
         JS_PID=$!
         cd ../..
@@ -62,6 +70,7 @@ jobs:
         
         # Clean up
         kill $JS_PID 2>/dev/null || true
+        kill $RELAY_PID 2>/dev/null || true
         
         if [ $SWIFT_RESULT -eq 0 ]; then
           echo "✅ Interoperability test passed!"
