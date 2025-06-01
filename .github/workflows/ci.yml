@@ -19,11 +19,22 @@ jobs:
       with:
         xcode-version: latest-stable
         
-    - name: Install SwiftLint
-      run: brew install swiftlint
-      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install Dependencies
+      run: |
+        brew install swiftlint
+        cd Tests/Interop && npm install
+        
     - name: Lint Swift Code
       run: swiftlint lint --strict
+      
+    - name: Lint JavaScript Code
+      working-directory: Tests/Interop
+      run: npm run lint
       
     - name: Build
       run: swift build
@@ -31,33 +42,7 @@ jobs:
     - name: Unit Tests
       run: swift test --filter IntegrationTest.testRoomLifecycle
       
-  interop:
-    runs-on: macos-latest
-    needs: test
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Install JavaScript Dependencies
-      working-directory: Tests/Interop
-      run: npm install
-      
-    - name: Lint JavaScript Code
-      working-directory: Tests/Interop
-      run: npm run lint
-      
-    - name: Test Swift <-> JavaScript Interoperability
+    - name: Interoperability Tests
       run: |
         export INTEROP_ROOM_ID="ci-test-$(date +%s)"
         export EXPECT_JS_PEER="true"
