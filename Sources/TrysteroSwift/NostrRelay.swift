@@ -110,10 +110,8 @@ class NostrRelay: NostrClientDelegate {
 
         try event.sign(with: keyPair)
 
-        // Send event and don't wait for callback
-        client.send(event: event) { _ in
-            // Callback handled asynchronously
-        }
+        // Send event without callback
+        client.send(event: event)
     }
 
     // MARK: - Private
@@ -170,10 +168,7 @@ class NostrRelay: NostrClientDelegate {
         do {
             try event.sign(with: keyPair)
             Task { @MainActor in
-                client.send(event: event) { _ in
-                    // Best effort - presence announcements can fail
-                    // Callback may be on different thread, but we don't need to do anything
-                }
+                client.send(event: event)
             }
         } catch {
             // Non-fatal: presence will be re-announced
