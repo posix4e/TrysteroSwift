@@ -1,6 +1,7 @@
 import Foundation
 @preconcurrency import NostrClient
 import Nostr
+import CryptoKit
 
 /// Handles Nostr relay communication for signaling
 @MainActor
@@ -11,6 +12,7 @@ class NostrRelay: NostrClientDelegate {
     private let keyPair: KeyPair
     private var client: NostrClient
     private var subscriptions: Set<String> = []
+    private let eventKind: UInt16
 
     var onSignal: ((Signal, String) -> Void)?
     var onPeerPresence: ((String) -> Void)?
@@ -19,6 +21,13 @@ class NostrRelay: NostrClientDelegate {
         self.config = config
         self.namespace = namespace
         self.selfId = selfId
+        
+        // Calculate topic hash matching Trystero.js: SHA1("Trystero@{appId}@{roomId}")
+        let topicPath = "Trystero@\(config.appId)@\(namespace)"
+        let topicHash = Self.sha1Hash(topicPath)
+        
+        // Calculate event kind from topic hash (matching Trystero.js)
+        self.eventKind = Self.topicToKind(topicHash)
 
         // Create a new keypair for this room
         do {
@@ -29,6 +38,27 @@ class NostrRelay: NostrClientDelegate {
 
         self.client = NostrClient()
         self.client.delegate = self
+    }
+    
+    // MARK: - Static Methods
+    
+    /// Calculate SHA1 hash of a string and return as base36 string (matching Trystero.js)
+    /// Each byte is converted to base36 and joined
+    private static func sha1Hash(_ string: String) -> String {
+        let data = Data(string.utf8)
+        let hash = Insecure.SHA1.hash(data: data)
+        return hash.map { byte in
+            String(Int(byte), radix: 36)
+        }.joined()
+    }
+    
+    /// Convert topic string to event kind (matching Trystero.js)
+    /// Uses the same algorithm: strToNum(topic, 10_000) + 20_000
+    private static func topicToKind(_ topic: String) -> UInt16 {
+        let sum = topic.reduce(0) { acc, char in
+            acc + Int(char.asciiValue ?? 0)
+        }
+        return UInt16((sum % 10_000) + 20_000)
     }
 
     func connect() async throws {
@@ -62,9 +92,9 @@ class NostrRelay: NostrClientDelegate {
         var event = Event(
             pubkey: keyPair.publicKey,
             createdAt: Timestamp(date: Date()),
-            kind: .custom(22777), // Trystero event kind
+            kind: .custom(eventKind),
             tags: [
-                Tag(id: "t", otherInformation: "trystero-\(namespace)"),
+                Tag(id: "x", otherInformation: Self.sha1Hash("Trystero@\(config.appId)@\(namespace)")),
                 Tag(id: "p", otherInformation: peerId)
             ],
             content: content
@@ -111,8 +141,8 @@ class NostrRelay: NostrClientDelegate {
 
     private func subscribeToRoom() {
         let filter = Filter(
-            kinds: [.custom(22777)],
-            tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")]
+            kinds: [.custom(eventKind)],
+            tags: [Tag(id: "x", otherInformation: Self.sha1Hash("Trystero@\(config.appId)@\(namespace)"))]
         )
 
         let subId = UUID().uuidString
@@ -126,8 +156,8 @@ class NostrRelay: NostrClientDelegate {
         var event = Event(
             pubkey: keyPair.publicKey,
             createdAt: Timestamp(date: Date()),
-            kind: .custom(22777),
-            tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")],
+            kind: .custom(eventKind),
+            tags: [Tag(id: "x", otherInformation: Self.sha1Hash("Trystero@\(config.appId)@\(namespace)"))],
             content: "{\"type\":\"presence\",\"peerId\":\"\(selfId)\"}"
         )
 
