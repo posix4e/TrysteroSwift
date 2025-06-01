@@ -14,5 +14,18 @@
     "ws": "^8.14.2",
     "typescript": "^5.3.0",
     "@types/node": "^20.10.0"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "trystero",
+    "webrtc", 
+    "peer-to-peer",
+    "testing",
+    "swift",
+    "interoperability"
+  ],
+  "author": "TrysteroSwift Team",
+  "license": "MIT"
 }

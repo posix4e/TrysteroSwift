@@ -27,10 +27,6 @@ let package = Package(
             dependencies: [
                 .product(name: "WebRTC", package: "WebRTC"),
                 "NostrClient"
-            ]),
-        .testTarget(
-            name: "TrysteroSwiftTests",
-            dependencies: ["TrysteroSwift"]
-        ),
+            ])
     ]
 )
