@@ -14,6 +14,7 @@ class NostrRelay: NostrClientDelegate {
     private var subscriptions: Set<String> = []
     private let eventKind: UInt16
     private var peerIdToPubkey: [String: String] = [:]  // Maps internal peerIds to Nostr pubkeys
+    private var pubkeyToPeerId: [String: String] = [:]  // Maps Nostr pubkeys to internal peerIds
 
     var onSignal: ((Signal, String) -> Void)?
     var onPeerPresence: ((String) -> Void)?
@@ -111,9 +112,12 @@ class NostrRelay: NostrClientDelegate {
 
         // Send event with callback
         await withCheckedContinuation { continuation in
+            let eventToSend = event
             Task { @MainActor in
-                client.send(event: event) { _ in
-                    continuation.resume()
+                client.send(event: eventToSend) { _ in
+                    Task {
+                        continuation.resume()
+                    }
                 }
             }
         }
@@ -214,27 +218,32 @@ class NostrRelay: NostrClientDelegate {
         guard event.pubkey != keyPair.publicKey else { return }
 
         let content = event.content
-        let fromPeerId = String(event.pubkey.prefix(20))
 
         if let data = content.data(using: .utf8),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
 
             // Check if it's a presence announcement (just {peerId: "..."})
             if let peerId = json["peerId"] as? String, json["type"] == nil {
-                // Store mapping between internal peerId and Nostr pubkey
+                // Store bidirectional mapping between internal peerId and Nostr pubkey
                 peerIdToPubkey[peerId] = event.pubkey
+                pubkeyToPeerId[event.pubkey] = peerId
                 onPeerPresence?(peerId)
             }
             // Otherwise check for typed messages
             else if let type = json["type"] as? String {
                 if type == "presence" {
                     if let peerId = json["peerId"] as? String {
-                        // Store mapping for typed presence too
+                        // Store bidirectional mapping for typed presence too
                         peerIdToPubkey[peerId] = event.pubkey
+                        pubkeyToPeerId[event.pubkey] = peerId
                         onPeerPresence?(peerId)
                     }
                 } else if let signal = decodeSignal(from: json) {
-                    onSignal?(signal, fromPeerId)
+                    // Look up the internal peerId from the pubkey
+                    if let peerId = pubkeyToPeerId[event.pubkey] {
+                        onSignal?(signal, peerId)
+                    }
+                    // If we don't have a mapping, this might be a signal from an unknown peer
                 }
             }
         }
