@@ -2,6 +2,7 @@ import Foundation
 @preconcurrency import WebRTC
 
 /// Room class matching Trystero.js room API
+@MainActor
 public class Room {
     private let namespace: String
     private let config: Config
@@ -25,7 +26,7 @@ public class Room {
     }
 
     /// Make an action (data channel) - matches Trystero.js API
-    public func makeAction(_ type: String) -> (send: (Any, String?) -> Void, receive: @escaping (Any, String) -> Void) {
+    public func makeAction(_ type: String) -> (send: (Any, String?) -> Void, receive: (@escaping (Any, String) -> Void) -> Void) {
         let action = Action(type: type)
         actions[type] = action
 
@@ -33,9 +34,11 @@ public class Room {
             self?.sendAction(type: type, data: data, to: peerId)
         }
 
-        return (send: send, receive: { handler in
+        let receive: (@escaping (Any, String) -> Void) -> Void = { handler in
             action.handler = handler
-        })
+        }
+
+        return (send: send, receive: receive)
     }
 
     /// Register peer join handler
@@ -93,7 +96,7 @@ public class Room {
             self?.handlePeerPresence(peerId)
         }
 
-        Task {
+        Task { @MainActor in
             do {
                 try await nostr.connect()
             } catch {
@@ -112,7 +115,7 @@ public class Room {
                 polite: selfId > peerId,
                 config: config.rtcConfig,
                 onSignal: { [weak self] signal in
-                    Task {
+                    Task { @MainActor in
                         do {
                             try await self?.nostr.sendSignal(signal, to: peerId)
                         } catch {
@@ -146,8 +149,9 @@ public class Room {
             // Create peer if we receive a signal from unknown peer
             handlePeerPresence(peerId)
             // Handle signal after peer is created
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                self?.peers[peerId]?.handleSignal(signal)
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                self.peers[peerId]?.handleSignal(signal)
             }
         }
     }

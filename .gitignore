@@ -8,3 +8,4 @@ DerivedData/
 .netrc
 *.swp
 build/
+Examples/Chat/.build/

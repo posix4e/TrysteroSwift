@@ -3,81 +3,89 @@ import NostrClient
 import Nostr
 
 /// Handles Nostr relay communication for signaling
-class NostrRelay {
+@MainActor
+class NostrRelay: NostrClientDelegate {
     private let config: Config
     private let namespace: String
     private let selfId: String
-    private let keyPair: NostrKeypair
-    private var client: NostrClient.Client?
+    private let keyPair: KeyPair
+    private var client: NostrClient
     private var subscriptions: Set<String> = []
-
+    
     var onSignal: ((Signal, String) -> Void)?
     var onPeerPresence: ((String) -> Void)?
-
+    
     init(config: Config, namespace: String, selfId: String) {
         self.config = config
         self.namespace = namespace
         self.selfId = selfId
-        // This should never fail - we're creating a new keypair
-        self.keyPair = NostrKeypair()!
+        
+        // Create a new keypair for this room
+        do {
+            self.keyPair = try KeyPair()
+        } catch {
+            fatalError("Failed to create Nostr keypair: \(error)")
+        }
+        
+        self.client = NostrClient()
+        self.client.delegate = self
     }
-
+    
     func connect() async throws {
         let relays = selectRelays()
-
-        client = Client(keypair: keyPair)
-
-        // Connect to relays - failures are non-fatal
+        
+        // Add relays and connect
         for relay in relays {
-            do {
-                try await client?.connect(to: relay)
-            } catch {
-                // Individual relay failures don't stop the room
-                // Could add logging/metrics here
-                continue
+            client.add(relayWithUrl: relay, subscriptions: [], autoConnect: true)
+        }
+        
+        // Subscribe to room events
+        subscribeToRoom()
+        
+        // Announce presence after a short delay to ensure connection
+        try await Task.sleep(nanoseconds: 500_000_000) // 500ms
+        announcePresence()
+    }
+    
+    func disconnect() {
+        subscriptions.forEach { subId in
+            // NostrClient doesn't have direct unsubscribe - remove all and reconnect
+        }
+        subscriptions.removeAll()
+        client.disconnect()
+    }
+    
+    func sendSignal(_ signal: Signal, to peerId: String) async throws {
+        let content = encodeSignal(signal)
+        
+        var event = Event(
+            pubkey: keyPair.publicKey,
+            createdAt: Timestamp(date: Date()),
+            kind: .custom(29000), // Ephemeral event
+            tags: [
+                Tag(id: "t", otherInformation: "trystero-\(namespace)"),
+                Tag(id: "p", otherInformation: peerId)
+            ],
+            content: content
+        )
+        
+        try event.sign(with: keyPair)
+        
+        // Send event with callback
+        await withCheckedContinuation { continuation in
+            client.send(event: event) { error in
+                continuation.resume()
             }
         }
-
-        // Subscribe to room events
-        await subscribeToRoom()
-
-        // Announce presence
-        await announcePresence()
     }
-
-    func disconnect() {
-        subscriptions.forEach { client?.unsubscribe(subscriptionId: $0) }
-        subscriptions.removeAll()
-        client?.disconnect()
-        client = nil
-    }
-
-    func sendSignal(_ signal: Signal, to peerId: String) async throws {
-        guard let client = client else { return }
-
-        let content = encodeSignal(signal)
-        let tags: [[String]] = [
-            ["t", "trystero-\(namespace)"],
-            ["p", peerId]
-        ]
-
-        let event = NostrEvent(
-            keyPair: keyPair,
-            kind: .custom(29000), // Ephemeral event
-            content: content,
-            tags: tags
-        )
-
-        try await client.publishEvent(event)
-    }
-
+    
     // MARK: - Private
-
+    
     private func selectRelays() -> [String] {
         if let customRelays = config.relayUrls {
             return Array(customRelays.prefix(config.relayRedundancy))
         }
-
+        
         // Default Trystero relays
         let defaults = [
             "wss://relay.damus.io",
@@ -86,71 +94,90 @@ class NostrRelay {
             "wss://nostr.wine",
             "wss://relay.snort.social"
         ]
-
+        
         // Deterministic selection based on app ID
         let hash = config.appId.hashValue
         var selected: [String] = []
         var index = abs(hash) % defaults.count
-
+        
         for _ in 0..<min(config.relayRedundancy, defaults.count) {
             selected.append(defaults[index])
             index = (index + 1) % defaults.count
         }
-
+        
         return selected
     }
-
-    private func subscribeToRoom() async {
-        guard let client = client else { return }
-
-        let filter = NostrFilter(
+    
+    private func subscribeToRoom() {
+        let filter = Filter(
             kinds: [.custom(29000)],
-            tags: ["t": ["trystero-\(namespace)"]]
+            tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")]
         )
-
+        
         let subId = UUID().uuidString
         subscriptions.insert(subId)
-
-        client.subscribe(with: filter, subscriptionId: subId) { [weak self] event in
-            self?.handleEvent(event)
-        }
+        
+        let subscription = Subscription(filters: [filter], id: subId)
+        client.add(subscriptions: [subscription])
     }
-
-    private func announcePresence() async {
-        guard let client = client else { return }
-
-        let event = NostrEvent(
-            keyPair: keyPair,
+    
+    private func announcePresence() {
+        var event = Event(
+            pubkey: keyPair.publicKey,
+            createdAt: Timestamp(date: Date()),
             kind: .custom(29000),
-            content: #"{"type":"presence","peerId":"\#(selfId)"}"#,
-            tags: [["t", "trystero-\(namespace)"]]
+            tags: [Tag(id: "t", otherInformation: "trystero-\(namespace)")],
+            content: "{\"type\":\"presence\",\"peerId\":\"\(selfId)\"}"
         )
-
-        // Best effort - presence announcements can fail
+        
         do {
-            try await client.publishEvent(event)
+            try event.sign(with: keyPair)
+            client.send(event: event) { error in
+                // Best effort - presence announcements can fail
+            }
         } catch {
             // Non-fatal: presence will be re-announced
         }
-
+        
         // Re-announce periodically
-        Task {
+        Task { @MainActor in
             try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
-            await announcePresence()
+            announcePresence()
         }
     }
-
-    private func handleEvent(_ event: NostrEvent) {
+    
+    // MARK: - NostrClientDelegate
+    
+    nonisolated func didReceive(message: RelayMessage, relayUrl: String) {
+        switch message {
+        case .event(_, let event):
+            Task { @MainActor in
+                self.handleEvent(event)
+            }
+        default:
+            break
+        }
+    }
+    
+    nonisolated func didConnect(relayUrl: String) {
+        // Connection established
+    }
+    
+    nonisolated func didDisconnect(relayUrl: String) {
+        // Connection lost
+    }
+    
+    private func handleEvent(_ event: Event) {
         // Ignore our own events
         guard event.pubkey != keyPair.publicKey else { return }
-
+        
         let content = event.content
         let fromPeerId = String(event.pubkey.prefix(20))
-
+        
         if let data = content.data(using: .utf8),
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
            let type = json["type"] as? String {
-
+            
             if type == "presence" {
                 if let peerId = json["peerId"] as? String {
                     onPeerPresence?(peerId)
@@ -160,10 +187,10 @@ class NostrRelay {
             }
         }
     }
-
+    
     private func encodeSignal(_ signal: Signal) -> String {
         var json: [String: Any] = ["type": signal.type.rawValue]
-
+        
         switch signal.type {
         case .offer, .answer:
             json["sdp"] = signal.sdp
@@ -174,7 +201,7 @@ class NostrRelay {
         case .bye:
             break
         }
-
+        
         // We control the JSON structure, but be defensive
         guard let data = try? JSONSerialization.data(withJSONObject: json),
               let string = String(data: data, encoding: .utf8) else {
@@ -183,22 +210,22 @@ class NostrRelay {
         }
         return string
     }
-
+    
     private func decodeSignal(from json: [String: Any]) -> Signal? {
         guard let typeString = json["type"] as? String,
               let type = SignalType(rawValue: typeString) else { return nil }
-
+        
         switch type {
         case .offer, .answer:
             guard let sdp = json["sdp"] as? String else { return nil }
             return Signal(type: type, sdp: sdp)
-
+            
         case .candidate:
             guard let candidate = json["candidate"] as? String,
                   let sdpMid = json["sdpMid"] as? String,
                   let sdpMLineIndex = json["sdpMLineIndex"] as? Int32 else { return nil }
             return Signal(type: type, candidate: candidate, sdpMid: sdpMid, sdpMLineIndex: sdpMLineIndex)
-
+            
         case .bye:
             return Signal(type: type)
         }
@@ -212,7 +239,7 @@ struct Signal {
     var candidate: String?
     var sdpMid: String?
     var sdpMLineIndex: Int32?
-
+    
     init(type: SignalType, sdp: String? = nil, candidate: String? = nil, sdpMid: String? = nil, sdpMLineIndex: Int32? = nil) {
         self.type = type
         self.sdp = sdp

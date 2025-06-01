@@ -1,11 +1,14 @@
 import Foundation
 @preconcurrency import WebRTC
 
+// Import TrysteroRTCConfiguration from Trystero module
+
 /// Manages a single peer connection
+@MainActor
 class Peer: NSObject {
     let id: String
     private let polite: Bool
-    private let rtcConfig: RTCConfiguration?
+    private let rtcConfig: TrysteroRTCConfiguration?
     private var peerConnection: RTCPeerConnection?
     private var dataChannels: [String: RTCDataChannel] = [:]
     private var makingOffer = false
@@ -21,7 +24,7 @@ class Peer: NSObject {
     init(
         id: String,
         polite: Bool,
-        config: RTCConfiguration?,
+        config: TrysteroRTCConfiguration?,
         onSignal: @escaping (Signal) -> Void,
         onConnect: @escaping () -> Void,
         onData: @escaping (String, Any) -> Void,
@@ -45,7 +48,7 @@ class Peer: NSObject {
     func initiate() {
         // Only impolite peer creates initial offer
         if !polite {
-            Task {
+            Task { @MainActor in
                 do {
                     try await createOffer()
                 } catch {
@@ -57,7 +60,7 @@ class Peer: NSObject {
     }
 
     func handleSignal(_ signal: Signal) {
-        Task {
+        Task { @MainActor in
             await handleSignalAsync(signal)
         }
     }
@@ -136,8 +139,9 @@ class Peer: NSObject {
             // Create channel if it doesn't exist
             createDataChannel(label: type)
             // Queue data to send when channel opens
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                self?.sendData(type: type, data: data)
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                self.sendData(type: type, data: data)
             }
             return
         }
@@ -187,8 +191,9 @@ class Peer: NSObject {
     private func createPeerConnection() {
         let config = RTCConfiguration()
 
-        // Apply custom config if provided
+        // RTCConfiguration.iceServers is mutable and can be appended to
         if let customConfig = rtcConfig {
+            // Clear default ice servers and add custom ones
             config.iceServers = customConfig.iceServers.map { server in
                 RTCIceServer(
                     urlStrings: server.urls,
@@ -197,6 +202,7 @@ class Peer: NSObject {
                 )
             }
         } else {
+            // Use default STUN server
             config.iceServers = [RTCIceServer(urlStrings: ["stun:stun.l.google.com:19302"])]
         }
 
@@ -252,78 +258,90 @@ class Peer: NSObject {
 // MARK: - RTCPeerConnectionDelegate
 
 extension Peer: RTCPeerConnectionDelegate {
-    func peerConnection(_ peerConnection: RTCPeerConnection, didChange state: RTCSignalingState) {
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didChange state: RTCSignalingState) {
         // Handle signaling state changes
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
-        onStream(stream)
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
+        Task { @MainActor in
+            self.onStream(stream)
+        }
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didRemove stream: RTCMediaStream) {
         // Handle stream removal
     }
 
-    func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
-        Task {
+    nonisolated func peerConnectionShouldNegotiate(_ peerConnection: RTCPeerConnection) {
+        Task { @MainActor in
             do {
-                try await createOffer()
+                try await self.createOffer()
             } catch {
                 // Renegotiation failed - connection may degrade
             }
         }
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
         switch newState {
         case .connected, .completed:
-            onConnect()
+            Task { @MainActor in
+                self.onConnect()
+            }
         case .failed, .disconnected:
-            close()
+            Task { @MainActor in
+                self.close()
+            }
         default:
             break
         }
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceGatheringState) {
         // Handle gathering state
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
-        onSignal(Signal(
-            type: .candidate,
-            candidate: candidate.sdp,
-            sdpMid: candidate.sdpMid,
-            sdpMLineIndex: candidate.sdpMLineIndex
-        ))
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didGenerate candidate: RTCIceCandidate) {
+        Task { @MainActor in
+            self.onSignal(Signal(
+                type: .candidate,
+                candidate: candidate.sdp,
+                sdpMid: candidate.sdpMid,
+                sdpMLineIndex: candidate.sdpMLineIndex
+            ))
+        }
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didRemove candidates: [RTCIceCandidate]) {
         // Handle removed candidates
     }
 
-    func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
-        dataChannel.delegate = self
-        dataChannels[dataChannel.label] = dataChannel
+    nonisolated func peerConnection(_ peerConnection: RTCPeerConnection, didOpen dataChannel: RTCDataChannel) {
+        Task { @MainActor in
+            dataChannel.delegate = self
+            self.dataChannels[dataChannel.label] = dataChannel
+        }
     }
 }
 
 // MARK: - RTCDataChannelDelegate
 
 extension Peer: RTCDataChannelDelegate {
-    func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
+    nonisolated func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
         // Handle state changes
     }
 
-    func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
+    nonisolated func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {
         let data = buffer.data
 
-        if let stringData = String(data: data, encoding: .utf8) {
-            onData(dataChannel.label, stringData)
-        } else if let jsonObject = try? JSONSerialization.jsonObject(with: data) {
-            onData(dataChannel.label, jsonObject)
-        } else {
-            onData(dataChannel.label, data)
+        Task { @MainActor in
+            if let stringData = String(data: data, encoding: .utf8) {
+                self.onData(dataChannel.label, stringData)
+            } else if let jsonObject = try? JSONSerialization.jsonObject(with: data) {
+                self.onData(dataChannel.label, jsonObject)
+            } else {
+                self.onData(dataChannel.label, data)
+            }
         }
     }
 }
