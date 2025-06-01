@@ -68,54 +68,66 @@ class Peer: NSObject {
 
         switch signal.type {
         case .offer:
-            guard let sdp = signal.sdp else { return }
-
-            let offerCollision = makingOffer || pc.signalingState != .stable
-            ignoreOffer = !polite && offerCollision
-
-            if ignoreOffer {
-                return
-            }
-
-            do {
-                try await pc.setRemoteDescription(RTCSessionDescription(type: .offer, sdp: sdp))
-                let answer = try await pc.answer(for: nil)
-                try await pc.setLocalDescription(answer)
-                onSignal(Signal(type: .answer, sdp: answer.sdp))
-            } catch {
-                // Failed to handle offer - connection fails
-                close()
-            }
-
+            await handleOffer(signal, pc: pc)
         case .answer:
-            guard let sdp = signal.sdp else { return }
-            do {
-                try await pc.setRemoteDescription(RTCSessionDescription(type: .answer, sdp: sdp))
-            } catch {
-                // Failed to set answer - connection fails
-                close()
-            }
-
+            await handleAnswer(signal, pc: pc)
         case .candidate:
-            guard let candidate = signal.candidate,
-                  let sdpMid = signal.sdpMid,
-                  let sdpMLineIndex = signal.sdpMLineIndex else { return }
-
-            let iceCandidate = RTCIceCandidate(
-                sdp: candidate,
-                sdpMLineIndex: sdpMLineIndex,
-                sdpMid: sdpMid
-            )
-
-            do {
-                try await pc.add(iceCandidate)
-            } catch {
-                // ICE candidate failures are non-fatal
-                // Connection might still succeed with other candidates
-            }
-
+            await handleCandidate(signal, pc: pc)
         case .bye:
             close()
+        }
+    }
+
+    @MainActor
+    private func handleOffer(_ signal: Signal, pc: RTCPeerConnection) async {
+        guard let sdp = signal.sdp else { return }
+
+        let offerCollision = makingOffer || pc.signalingState != .stable
+        ignoreOffer = !polite && offerCollision
+
+        if ignoreOffer {
+            return
+        }
+
+        do {
+            try await pc.setRemoteDescription(RTCSessionDescription(type: .offer, sdp: sdp))
+            let answer = try await pc.answer(for: nil)
+            try await pc.setLocalDescription(answer)
+            onSignal(Signal(type: .answer, sdp: answer.sdp))
+        } catch {
+            // Failed to handle offer - connection fails
+            close()
+        }
+    }
+
+    @MainActor
+    private func handleAnswer(_ signal: Signal, pc: RTCPeerConnection) async {
+        guard let sdp = signal.sdp else { return }
+        do {
+            try await pc.setRemoteDescription(RTCSessionDescription(type: .answer, sdp: sdp))
+        } catch {
+            // Failed to set answer - connection fails
+            close()
+        }
+    }
+
+    @MainActor
+    private func handleCandidate(_ signal: Signal, pc: RTCPeerConnection) async {
+        guard let candidate = signal.candidate,
+              let sdpMid = signal.sdpMid,
+              let sdpMLineIndex = signal.sdpMLineIndex else { return }
+
+        let iceCandidate = RTCIceCandidate(
+            sdp: candidate,
+            sdpMLineIndex: sdpMLineIndex,
+            sdpMid: sdpMid
+        )
+
+        do {
+            try await pc.add(iceCandidate)
+        } catch {
+            // ICE candidate failures are non-fatal
+            // Connection might still succeed with other candidates
         }
     }
 
@@ -135,7 +147,11 @@ class Peer: NSObject {
             jsonData = stringData.data(using: .utf8) ?? Data()
         } else {
             // We control the data - should always be serializable
-            jsonData = try! JSONSerialization.data(withJSONObject: data)
+            guard let encoded = try? JSONSerialization.data(withJSONObject: data) else {
+                // Invalid data provided by caller - skip sending
+                return
+            }
+            jsonData = encoded
         }
 
         let buffer = RTCDataBuffer(data: jsonData, isBinary: false)

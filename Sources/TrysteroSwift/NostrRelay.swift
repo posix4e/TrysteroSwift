@@ -175,9 +175,13 @@ class NostrRelay {
             break
         }
 
-        // This should never fail - we control the JSON structure
-        let data = try! JSONSerialization.data(withJSONObject: json)
-        return String(data: data, encoding: .utf8)!
+        // We control the JSON structure, but be defensive
+        guard let data = try? JSONSerialization.data(withJSONObject: json),
+              let string = String(data: data, encoding: .utf8) else {
+            // Fallback to empty signal if encoding fails
+            return "{\"type\":\"\(signal.type.rawValue)\"}"
+        }
+        return string
     }
 
     private func decodeSignal(from json: [String: Any]) -> Signal? {
