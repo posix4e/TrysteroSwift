@@ -4,7 +4,9 @@ import Foundation
 // MARK: - RTCPeerConnectionDelegate
 extension TrysteroRoom {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange stateChanged: RTCSignalingState) {
-        print("🔗 [Swift Debug] Signaling state changed: \(stateChanged)")
+        Task { @MainActor in
+            print("🔗 [Swift Debug] Signaling state changed: \(stateChanged)")
+        }
     }
     
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd stream: RTCMediaStream) {
@@ -20,32 +22,41 @@ extension TrysteroRoom {
     }
     
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
-        print("🧊 [Swift Debug] ICE connection state changed: \(newState)")
-        
-        // Find peer ID for this connection using safe lookup
-        let peerId = getPeerId(for: peerConnection)
-        
-        switch newState {
-        case .checking:
-            if let peerId = peerId {
-                print("🤝 [Swift Debug] Peer \(peerId) WebRTC connecting")
-                webrtcConnectingHandler?(peerId)
+        Task { @MainActor in
+            print("🧊 [Swift Debug] ICE connection state changed: \(newState)")
+            
+            // Find peer ID for this connection using safe lookup
+            let peerId = getPeerId(for: peerConnection)
+            
+            switch newState {
+            case .checking:
+                if let peerId = peerId {
+                    print("🤝 [Swift Debug] Peer \(peerId) WebRTC connecting")
+                    webrtcConnectingHandler?(peerId)
+                }
+            case .connected, .completed:
+                if let peerId = peerId {
+                    print("✅ [Swift Debug] Peer \(peerId) WebRTC connected")
+                    clearConnectionTimeout(for: peerId)
+                    webrtcConnectedHandler?(peerId)
+                    
+                    // Check data channel state when ICE connects
+                    if let dataChannel = dataChannels[peerId] {
+                        print("📡 [Swift Debug] Data channel state for \(peerId) when ICE connected: \(dataChannel.readyState)")
+                    } else {
+                        print("📡 [Swift Debug] No data channel found for \(peerId) when ICE connected")
+                    }
+                    // Note: peerJoinHandler already called in handlePeerPresence
+                }
+            case .disconnected, .failed, .closed:
+                if let peerId = peerId {
+                    print("❌ [Swift Debug] Peer \(peerId) WebRTC disconnected")
+                    webrtcDisconnectedHandler?(peerId)
+                    cleanupPeer(peerId)
+                }
+            default:
+                break
             }
-        case .connected, .completed:
-            if let peerId = peerId {
-                print("✅ [Swift Debug] Peer \(peerId) WebRTC connected")
-                clearConnectionTimeout(for: peerId)
-                webrtcConnectedHandler?(peerId)
-                // Note: peerJoinHandler already called in handlePeerPresence
-            }
-        case .disconnected, .failed, .closed:
-            if let peerId = peerId {
-                print("❌ [Swift Debug] Peer \(peerId) WebRTC disconnected")
-                webrtcDisconnectedHandler?(peerId)
-                cleanupPeer(peerId)
-            }
-        default:
-            break
         }
     }
     
@@ -65,10 +76,11 @@ extension TrysteroRoom {
             sdpMLineIndex: candidate.sdpMLineIndex
         )
         
-        Task {
+        Task { @MainActor in
             do {
-                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: targetPeer)
-                print("📤 [Swift Debug] Sent ICE candidate to \(targetPeer)")
+                let targetPubkey = peerIdToPubkey[targetPeer] ?? targetPeer
+                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: targetPubkey)
+                print("📤 [Swift Debug] Sent ICE candidate to \(targetPeer) (pubkey: \(targetPubkey))")
             } catch {
                 print("❌ [Swift Debug] Failed to send ICE candidate: \(error)")
             }
@@ -93,7 +105,20 @@ extension TrysteroRoom {
 // MARK: - RTCDataChannelDelegate
 extension TrysteroRoom {
     public func dataChannelDidChangeState(_ dataChannel: RTCDataChannel) {
-        print("📡 [Swift Debug] Data channel state changed: \(dataChannel.readyState)")
+        Task { @MainActor in
+            let peerId = dataChannels.first(where: { $0.value === dataChannel })?.key ?? "unknown"
+            print("📡 [Swift Debug] Data channel (\(peerId)) state changed: \(dataChannel.readyState)")
+            
+            if dataChannel.readyState == .open {
+                print("🎉 [Swift Debug] Data channel for \(peerId) is now OPEN - ready for messaging!")
+                
+                // Send a test message immediately when channel opens
+                let testMessage = Data("Hello from Swift - channel opened!".utf8)
+                let buffer = RTCDataBuffer(data: testMessage, isBinary: false)
+                dataChannel.sendData(buffer)
+                print("📤 [Swift Debug] Sent test message on newly opened channel to \(peerId)")
+            }
+        }
     }
     
     public func dataChannel(_ dataChannel: RTCDataChannel, didReceiveMessageWith buffer: RTCDataBuffer) {

@@ -7,16 +7,21 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     internal let roomId: String
     internal let nostrClient: TrysteroNostrClient
     private let webRTCManager: WebRTCManager
+    private let myPeerId: String
     internal var peers: [String: RTCPeerConnection] = [:]
     internal var dataChannels: [String: RTCDataChannel] = [:]
     private var pendingIceCandidates: [String: [RTCIceCandidate]] = [:]
     internal var connectedPeers: Set<String> = []
     // Reverse mapping for thread-safe peer ID lookup
     private var peerConnections: [ObjectIdentifier: String] = [:]
+    private var pubkeyToPeerId: [String: String] = [:] // Map pubkey -> peerId
+    internal var peerIdToPubkey: [String: String] = [:] // Map peerId -> pubkey
     private var isJoined = false
     private var presenceTimer: Timer?
     // Connection timeout tracking
     private var connectionTimeouts: [String: Timer] = [:]
+    // Synchronization queue for peer operations
+    private let peerOperationQueue = DispatchQueue(label: "trystero.peer.operations", qos: .userInitiated)
     
     // Event handlers
     internal var peerJoinHandler: ((String) -> Void)?
@@ -30,6 +35,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         self.roomId = roomId
         self.nostrClient = try TrysteroNostrClient(relays: relays, appId: appId)
         self.webRTCManager = WebRTCManager()
+        
+        // Generate peer ID compatible with Trystero.js format
+        self.myPeerId = String.randomString(length: 20)
     }
     
     public func join() async throws {
@@ -46,7 +54,7 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         try await nostrClient.connect()
         
         // Give relays time to establish connection
-        try await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        try await Task.sleep(nanoseconds: 500_000_000) // 500ms
         
         try await nostrClient.subscribe(to: roomId)
         try await announcePresence()
@@ -81,8 +89,8 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     }
     
     private func announcePresence() async throws {
-        print("🔍 [Swift Debug] Announcing presence to room: \(roomId)")
-        let presenceSignal = WebRTCSignal.presence(peerId: nostrClient.keyPair.publicKey)
+        print("🔍 [Swift Debug] Announcing presence to room: \(roomId) with peer ID: \(myPeerId)")
+        let presenceSignal = WebRTCSignal.presence(peerId: myPeerId)
         try await nostrClient.publishSignal(presenceSignal, roomId: roomId, targetPeer: nil)
         print("🔍 [Swift Debug] Presence announcement sent successfully")
     }
@@ -91,9 +99,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         stopPresenceTimer() // Stop any existing timer
         
         presenceTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
-            guard let self = self, self.isJoined else { return }
-            
-            Task {
+            Task { @MainActor in
+                guard let self = self, self.isJoined else { return }
+                
                 do {
                     try await self.announcePresence()
                 } catch {
@@ -118,7 +126,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         // Set new timeout (30 seconds)
         connectionTimeouts[peerId] = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
             print("⏰ [Swift Debug] Connection timeout for peer \(String(peerId.prefix(8)))...")
-            self?.handleConnectionTimeout(peerId: peerId)
+            Task { @MainActor in
+                self?.handleConnectionTimeout(peerId: peerId)
+            }
         }
         
         print("⏰ [Swift Debug] Started connection timeout for \(String(peerId.prefix(8)))... (30s)")
@@ -145,28 +155,31 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
                 switch signal {
                 case .presence(let peerId):
                     print("🔍 [Swift Debug] Peer \(fromPeer) announced presence with ID: \(peerId)")
-                    await handlePeerPresence(fromPeer)
+                    pubkeyToPeerId[fromPeer] = peerId
+                    peerIdToPubkey[peerId] = fromPeer
+                    print("🔍 [Swift Debug] About to call handlePeerPresence for \(peerId)")
+                    await handlePeerPresence(peerId)
+                    print("🔍 [Swift Debug] Finished calling handlePeerPresence for \(peerId)")
                     
                 case .offer(let sdp):
                     print("🔍 [Swift Debug] Received WebRTC offer from \(fromPeer)")
-                    try await handleOffer(sdp: sdp, from: fromPeer)
+                    let peerId = pubkeyToPeerId[fromPeer] ?? fromPeer
+                    try await handleOffer(sdp: sdp, from: peerId)
                     
                 case .answer(let sdp):
                     print("🔍 [Swift Debug] Received WebRTC answer from \(fromPeer)")
-                    try await handleAnswer(sdp: sdp, from: fromPeer)
+                    let peerId = pubkeyToPeerId[fromPeer] ?? fromPeer
+                    try await handleAnswer(sdp: sdp, from: peerId)
                     
                 case .iceCandidate(let candidate, let sdpMid, let sdpMLineIndex):
                     print("🔍 [Swift Debug] Received ICE candidate from \(fromPeer)")
-                    try await handleIceCandidate(candidate: candidate, sdpMid: sdpMid, sdpMLineIndex: sdpMLineIndex, from: fromPeer)
+                    let peerId = pubkeyToPeerId[fromPeer] ?? fromPeer
+                    try await handleIceCandidate(candidate: candidate, sdpMid: sdpMid, sdpMLineIndex: sdpMLineIndex, from: peerId)
                 }
             } catch {
                 print("🔍 [Swift Debug] Error handling WebRTC signal: \(error)")
             }
         }
-    }
-    
-    private func handleWebRTCSignal(_ signal: WebRTCSignal, from fromPeer: String) async {
-        handleWebRTCSignalSync(signal, from: fromPeer)
     }
     
     private func sendToPeer(_ data: Data, peerId: String) throws {
@@ -206,6 +219,11 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         dataChannels.removeValue(forKey: peerId)
         pendingIceCandidates.removeValue(forKey: peerId)
         
+        // Clean up pubkey mappings
+        if let pubkey = peerIdToPubkey.removeValue(forKey: peerId) {
+            pubkeyToPeerId.removeValue(forKey: pubkey)
+        }
+        
         if connectedPeers.remove(peerId) != nil {
             peerLeaveHandler?(peerId)
             print("👋 [Swift Debug] Peer \(String(peerId.prefix(8)))... left room")
@@ -230,6 +248,8 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         pendingIceCandidates.removeAll()
         connectedPeers.removeAll()
         peerConnections.removeAll()
+        pubkeyToPeerId.removeAll()
+        peerIdToPubkey.removeAll()
     }
     
     // Helper function to safely get peer ID from peer connection
@@ -241,73 +261,133 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     
     private func handlePeerPresence(_ peerId: String) async {
         // Skip our own presence announcement
-        guard peerId != nostrClient.keyPair.publicKey else {
+        guard peerId != myPeerId else {
             print("🔍 [Swift Debug] Ignoring our own presence announcement: \(String(peerId.prefix(8)))...")
             return
         }
         
-        guard peers[peerId] == nil else { return }
+        // Use synchronization to prevent race conditions with multiple peer connections
+        await withCheckedContinuation { continuation in
+            peerOperationQueue.async { [weak self] in
+                guard let self = self else {
+                    continuation.resume()
+                    return
+                }
+                
+                // Check if peer already exists (thread-safe)
+                guard self.peers[peerId] == nil else {
+                    print("🔍 [Swift Debug] Peer connection already exists for \(peerId)")
+                    continuation.resume()
+                    return
+                }
+                
+                print("🔗 [Swift Debug] Creating peer connection for: \(peerId)")
+                
+                Task { @MainActor in
+                    await self.createPeerConnectionSafely(for: peerId)
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    @MainActor
+    private func createPeerConnectionSafely(for peerId: String) async {
+        // Double-check peer doesn't exist now that we're on MainActor
+        guard peers[peerId] == nil else {
+            print("🔍 [Swift Debug] Peer connection already exists for \(peerId) (double-check)")
+            return
+        }
         
-        print("🔗 [Swift Debug] Creating peer connection for: \(peerId)")
+        // Ensure WebRTC operations happen on main queue
+        let peerConnection = webRTCManager.createPeerConnection(delegate: self)
         
-        guard let peerConnection = webRTCManager.createPeerConnection(delegate: self) else {
+        guard let peerConnection = peerConnection else {
             print("❌ [Swift Debug] Failed to create peer connection for \(peerId)")
             return
         }
         
-        peers[peerId] = peerConnection
-        peerConnections[ObjectIdentifier(peerConnection)] = peerId
+        // Ensure peerId is actually a string and add safety check
+        let safepeerId = String(describing: peerId)
+        print("🔍 [Swift Debug] Setting peer connection for safe peer ID: \(safepeerId)")
+        peers[safepeerId] = peerConnection
+        peerConnections[ObjectIdentifier(peerConnection)] = safepeerId
         
         // Track peer presence (before WebRTC connection completes)
-        connectedPeers.insert(peerId)
-        peerJoinHandler?(peerId)
-        print("✅ [Swift Debug] Peer \(String(peerId.prefix(8)))... joined room")
+        connectedPeers.insert(safepeerId)
+        peerJoinHandler?(safepeerId)
+        print("✅ [Swift Debug] Peer \(String(safepeerId.prefix(8)))... joined room")
         
         // Set connection timeout (30 seconds)
-        startConnectionTimeout(for: peerId)
+        startConnectionTimeout(for: safepeerId)
         
         // Only create offer if our peer ID is lexicographically smaller (prevents both sides offering)
-        let ourPeerId = nostrClient.keyPair.publicKey
-        let shouldCreateOffer = ourPeerId.localizedCompare(peerId) == .orderedAscending
+        let shouldCreateOffer = myPeerId.localizedCompare(safepeerId) == .orderedAscending
         
         if shouldCreateOffer {
-            print("🤝 [Swift Debug] We'll create offer for \(peerId) (our ID: \(String(ourPeerId.prefix(8)))...)")
+            print("🤝 [Swift Debug] We'll create offer for \(safepeerId) (our ID: \(String(myPeerId.prefix(8)))...)")
             
             // Create data channel (only the offerer creates it)
-            if let dataChannel = webRTCManager.createDataChannel(on: peerConnection, label: "data") {
+            let dataChannel = webRTCManager.createDataChannel(on: peerConnection, label: "data")
+            
+            if let dataChannel = dataChannel {
                 dataChannel.delegate = self
-                dataChannels[peerId] = dataChannel
-                print("📡 [Swift Debug] Created data channel for \(peerId)")
+                dataChannels[safepeerId] = dataChannel
+                print("📡 [Swift Debug] Created data channel for \(safepeerId)")
+            } else {
+                print("❌ [Swift Debug] Failed to create data channel for \(safepeerId)")
             }
             
-            // Create and send offer
+            // Create and send offer with proper error handling
             do {
+                // Small delay to let the peer connection stabilize
+                try await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                
+                print("🔧 [Swift Debug] Creating offer for \(safepeerId)...")
                 let offer = try await webRTCManager.createOffer(for: peerConnection)
+                print("🔧 [Swift Debug] Setting local description for \(safepeerId)...")
                 try await webRTCManager.setLocalDescription(offer, for: peerConnection)
+                print("🔧 [Swift Debug] Publishing offer signal for \(safepeerId)...")
                 
                 let signal = WebRTCSignal.offer(sdp: offer.sdp)
-                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: peerId)
-                print("📤 [Swift Debug] Sent offer to \(peerId)")
+                let targetPubkey = peerIdToPubkey[safepeerId] ?? safepeerId
+                try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: targetPubkey)
+                print("📤 [Swift Debug] Sent offer to \(safepeerId)")
             } catch {
-                print("❌ [Swift Debug] Failed to create/send offer to \(peerId): \(error)")
-                cleanupPeer(peerId)
+                print("❌ [Swift Debug] Failed to create/send offer to \(safepeerId): \(error)")
+                cleanupPeer(safepeerId)
+                return
             }
         } else {
-            print("🤝 [Swift Debug] Waiting for offer from \(peerId) (their ID is smaller)")
+            print("🤝 [Swift Debug] Waiting for offer from \(safepeerId) (their ID is smaller)")
         }
+        
+        print("🔍 [Swift Debug] Finished calling handlePeerPresence for \(safepeerId)")
     }
     
     private func handleOffer(sdp: String, from peerId: String) async throws {
         print("📥 [Swift Debug] Processing offer from \(peerId)")
         
+        try await handleOfferOnMainActor(sdp: sdp, from: peerId)
+    }
+    
+    @MainActor
+    private func handleOfferOnMainActor(sdp: String, from peerId: String) async throws {
         var peerConnection = peers[peerId]
         if peerConnection == nil {
-            guard let newConnection = webRTCManager.createPeerConnection(delegate: self) else {
+            // Create new connection on main queue
+            let newConnection = webRTCManager.createPeerConnection(delegate: self)
+            guard let newConnection = newConnection else {
                 throw TrysteroError.connectionFailed
             }
             peerConnection = newConnection
             peers[peerId] = newConnection
             peerConnections[ObjectIdentifier(newConnection)] = peerId
+            
+            // Track peer presence for answering peer too
+            connectedPeers.insert(peerId)
+            peerJoinHandler?(peerId)
+            print("✅ [Swift Debug] Peer \(String(peerId.prefix(8)))... joined room (answering)")
         }
         
         guard let connection = peerConnection else {
@@ -317,11 +397,18 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         let remoteDescription = RTCSessionDescription(type: .offer, sdp: sdp)
         try await webRTCManager.setRemoteDescription(remoteDescription, for: connection)
         
+        // The answering peer also needs to be ready to receive data on the data channel
+        // Note: The offering peer creates the data channel, but we need to handle it when it opens
+        
+        // Small delay to let the remote description process
+        try await Task.sleep(nanoseconds: 50_000_000) // 50ms
+        
         let answer = try await webRTCManager.createAnswer(for: connection)
         try await webRTCManager.setLocalDescription(answer, for: connection)
         
         let signal = WebRTCSignal.answer(sdp: answer.sdp)
-        try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: peerId)
+        let targetPubkey = peerIdToPubkey[peerId] ?? peerId
+        try await nostrClient.publishSignal(signal, roomId: roomId, targetPeer: targetPubkey)
         
         // Add any pending ICE candidates
         if let candidates = pendingIceCandidates.removeValue(forKey: peerId) {
@@ -418,5 +505,12 @@ public enum TrysteroError: Error, LocalizedError, Equatable {
         case .webRTCError(let message):
             return "WebRTC error: \(message)"
         }
+    }
+}
+
+extension String {
+    static func randomString(length: Int) -> String {
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return String((0..<length).map { _ in letters.randomElement() ?? "a" })
     }
 }

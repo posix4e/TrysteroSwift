@@ -10,7 +10,6 @@ public class Trystero {
 
 public struct RoomConfig {
     public let relays: [String]?
-    public let password: String?
     public let appId: String?
     public let relayRedundancy: Int
     
@@ -34,9 +33,8 @@ public struct RoomConfig {
         "wss://yabu.me/v2"
     ]
     
-    public init(relays: [String]? = nil, password: String? = nil, appId: String? = nil, relayRedundancy: Int = 5) {
+    public init(relays: [String]? = nil, appId: String? = nil, relayRedundancy: Int = 5) {
         self.relays = relays
-        self.password = password
         self.appId = appId
         self.relayRedundancy = relayRedundancy
     }

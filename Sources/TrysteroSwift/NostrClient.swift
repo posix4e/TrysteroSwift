@@ -2,10 +2,6 @@ import Foundation
 import NostrClient
 import Nostr
 import CryptoKit
-import Security
-#if os(iOS) || os(tvOS) || os(watchOS)
-import UIKit
-#endif
 
 class TrysteroNostrClient: NostrClientDelegate {
     private let client: NostrClient
@@ -19,7 +15,6 @@ class TrysteroNostrClient: NostrClientDelegate {
     private static let libName = "Trystero"
     private static let baseEventKind = 20000
     private static let eventKindRange = 10000
-    private static let hashLimit = 20  // Match Trystero.js hashLimit for topic hashes
     
     init(relays: [String], appId: String = "") throws {
         self.relays = relays
@@ -32,60 +27,13 @@ class TrysteroNostrClient: NostrClientDelegate {
         self.client.delegate = self
     }
     
-    // Persistent keypair storage using Keychain (for consistent peer IDs)
+    // Generate new keypair for each session
     private static func getOrCreateKeyPair(for appId: String) throws -> KeyPair {
-        // Generate device-specific but app-scoped identity
-        let deviceId = getDeviceIdentifier()
-        let keyId = "TrysteroSwift_\(deviceId)_\(appId.isEmpty ? "default" : appId)"
-        
-        // Try to load existing keypair from Keychain
-        if let existingKeyData = KeychainHelper.load(key: keyId),
-           let keyPairData = try? JSONDecoder().decode(KeyPairData.self, from: existingKeyData) {
-            print("🔑 [Swift Debug] Loaded existing keypair for appId: '\(appId)'")
-            return try KeyPair(hex: keyPairData.privateKey)
-        }
-        
-        // Create new keypair and store it
         let newKeyPair = try KeyPair()
-        let keyPairData = KeyPairData(privateKey: newKeyPair.privateKey, publicKey: newKeyPair.publicKey)
-        let encodedData = try JSONEncoder().encode(keyPairData)
-        
-        KeychainHelper.save(key: keyId, data: encodedData)
-        print("🔑 [Swift Debug] Created and stored new keypair for appId: '\(appId)'")
-        
+        print("🔑 [Swift Debug] Created new keypair for appId: '\(appId)'")
         return newKeyPair
     }
-    
-    // Get stable device identifier
-    private static func getDeviceIdentifier() -> String {
-        #if os(iOS) || os(tvOS) || os(watchOS)
-        // iOS: Use identifierForVendor (stable until all vendor apps uninstalled)
-        return UIDevice.current.identifierForVendor?.uuidString ?? "unknown-ios"
-        #elseif os(macOS)
-        // macOS: Use IOPlatformUUID (permanent hardware identifier)
-        let task = Process()
-        task.launchPath = "/usr/sbin/ioreg"
-        task.arguments = ["-d2", "-c", "IOPlatformExpertDevice"]
-        
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.launch()
-        task.waitUntilExit()
-        
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        if let output = String(data: data, encoding: .utf8),
-           let uuidRange = output.range(of: "\"IOPlatformUUID\" = \"") {
-            let uuidStart = output.index(uuidRange.upperBound, offsetBy: 0)
-            let uuidEnd = output.index(uuidStart, offsetBy: 36)
-            return String(output[uuidStart..<uuidEnd])
-        }
-        return "unknown-mac"
-        #else
-        // Other platforms: simple fallback
-        return "unknown-platform"
-        #endif
-    }
-    
+
     // MARK: - Trystero.js Compatibility Helpers
     
     /// Generate topic path in Trystero.js format: "Trystero@appId@roomId"
@@ -98,32 +46,35 @@ class TrysteroNostrClient: NostrClientDelegate {
         let data = Data(input.utf8)
         let digest = Insecure.SHA1.hash(data: data)
         return digest.map { byte in
-            // JavaScript-style byte.toString(36)
             String(byte, radix: 36)
         }.joined()
     }
     
-    /// Convert string to number like Trystero.js strToNum function
-    private func stringToNumber(_ str: String, modulo: Int) -> Int {
-        var sum = 0
-        for char in str {
-            sum += Int(char.asciiValue ?? 0)
+    /// Get topic hash for use in tags
+    private func getTopic(roomId: String) -> String {
+        let topicPath = generateTopicPath(roomId: roomId)
+        return sha1Hash(topicPath)
+    }
+    
+    /// Convert string to number exactly like Trystero.js strToNum function
+    private func stringToNumber(_ str: String, limit: Int) -> Int {
+        let sum = str.reduce(0) { acc, char in
+            acc + Int(char.unicodeScalars.first?.value ?? 0)
         }
-        return sum % modulo
+        return sum % limit
     }
     
     /// Calculate event kind like Trystero.js: strToNum(topicHash, range) + baseKind
     private func calculateEventKind(for roomId: String) -> UInt16 {
-        // Trystero.js calculates event kind from the SHA1 topic hash
-        let topicHash = generateTopic(roomId: roomId)
-        let num = stringToNumber(topicHash, modulo: Self.eventKindRange)
+        // Trystero.js calculates event kind from the topic HASH (not path)
+        let topicHash = getTopic(roomId: roomId)
+        let num = stringToNumber(topicHash, limit: Self.eventKindRange)
         return UInt16(Self.baseEventKind + num)
     }
     
-    /// Generate Trystero.js-compatible topic hash (use full hash for 'x' tag)
+    /// Generate Trystero.js-compatible topic string (for 'x' tag)
     private func generateTopic(roomId: String) -> String {
-        let topicPath = generateTopicPath(roomId: roomId)
-        return sha1Hash(topicPath)  // Use full hash like Trystero.js actually does
+        return getTopic(roomId: roomId)
     }
     
     /// Get appropriate expiration time for different signal types
@@ -155,33 +106,33 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func subscribe(to roomId: String) async throws {
         self.currentRoomId = roomId
-        let rootTopicHash = generateTopic(roomId: roomId)
+        let rootTopic = generateTopic(roomId: roomId)
         let rootEventKind = calculateEventKind(for: roomId)
         let topicPath = generateTopicPath(roomId: roomId)
         
         // Like Trystero.js, also subscribe to our self topic for direct messages
         let selfTopicPath = "\(topicPath)@\(keyPair.publicKey)"
-        let selfTopicHash = sha1Hash(selfTopicPath)
-        let selfEventKind = UInt16(Self.baseEventKind + stringToNumber(selfTopicHash, modulo: Self.eventKindRange))
+        let selfTopic = sha1Hash(selfTopicPath)
+        let selfEventKind = UInt16(Self.baseEventKind + stringToNumber(selfTopic, limit: Self.eventKindRange))
         
         print("🔍 [Swift Debug] Subscribing to room: \(roomId)")
         print("🔍 [Swift Debug] Using appId: '\(appId)'")
         print("🔍 [Swift Debug] Topic path: '\(topicPath)'")
-        print("🔍 [Swift Debug] Root topic hash: '\(rootTopicHash)'")
+        print("🔍 [Swift Debug] Root topic: '\(rootTopic)'")
         print("🔍 [Swift Debug] Root event kind: \(rootEventKind)")
-        print("🔍 [Swift Debug] Self topic hash: '\(selfTopicHash)'")
+        print("🔍 [Swift Debug] Self topic: '\(selfTopic)'")
         print("🔍 [Swift Debug] Self event kind: \(selfEventKind)")
         
         // Subscribe to both root topic (public room events) and self topic (direct messages)
         let rootFilter = Filter(
             kinds: [.custom(rootEventKind)],
             limit: 100,
-            tags: [Tag(id: "x", otherInformation: [rootTopicHash])]
+            tags: [Tag(id: "x", otherInformation: [rootTopic])]
         )
         let selfFilter = Filter(
             kinds: [.custom(selfEventKind)],
             limit: 100,
-            tags: [Tag(id: "x", otherInformation: [selfTopicHash])]
+            tags: [Tag(id: "x", otherInformation: [selfTopic])]
         )
         
         let subscription = Subscription(filters: [rootFilter, selfFilter])
@@ -191,11 +142,11 @@ class TrysteroNostrClient: NostrClientDelegate {
     
     func publishSignal(_ signal: WebRTCSignal, roomId: String, targetPeer: String?) async throws {
         let content = try signal.toJSON()
-        let topicHash = generateTopic(roomId: roomId)
+        let topic = generateTopic(roomId: roomId)
         let eventKind = calculateEventKind(for: roomId)
         
-        // Use 'x' tag with full hashed topic (no truncation)
-        var tags: [Tag] = [Tag(id: "x", otherInformation: topicHash)]
+        // Use 'x' tag with topic string (not hashed)
+        var tags: [Tag] = [Tag(id: "x", otherInformation: topic)]
         if let targetPeer = targetPeer {
             tags.append(Tag(id: "p", otherInformation: targetPeer))
         }
@@ -207,7 +158,7 @@ class TrysteroNostrClient: NostrClientDelegate {
         print("🔍 [Swift Debug] Publishing signal:")
         print("🔍 [Swift Debug]   Signal type: \(signal)")
         print("🔍 [Swift Debug]   Room ID: \(roomId)")
-        print("🔍 [Swift Debug]   Generated topic hash: '\(topicHash)'")
+        print("🔍 [Swift Debug]   Generated topic: '\(topic)'")
         print("🔍 [Swift Debug]   Event kind: \(eventKind)")
         print("🔍 [Swift Debug]   Target peer: \(targetPeer ?? "ALL")")
         print("🔍 [Swift Debug]   Expires at: \(expirationTime) (in \(expirationTime - Int64(Date().timeIntervalSince1970))s)")
@@ -300,7 +251,7 @@ class TrysteroNostrClient: NostrClientDelegate {
             return
         }
         
-        let expectedTopicHash = generateTopic(roomId: roomId)
+        let expectedTopic = generateTopic(roomId: roomId)
         let expectedEventKind = calculateEventKind(for: roomId)
         
         print("🔍 [Swift Debug] Processing event in handleNostrEvent:")
@@ -313,22 +264,22 @@ class TrysteroNostrClient: NostrClientDelegate {
             return 
         }
         
-        // Check if this event is for our room by looking for 'x' tag with our topic hash
+        // Check if this event is for our room by looking for 'x' tag with our topic
         var isForOurRoom = false
         var foundTopics: [String] = []
         
         for tag in event.tags where tag.id == "x" {
             if let topicValue = tag.otherInformation.first {
                 foundTopics.append(topicValue)
-                if topicValue == expectedTopicHash {
+                if topicValue == expectedTopic {
                     isForOurRoom = true
                 }
             }
         }
         
         print("🔍 [Swift Debug] Event topic analysis:")
-        print("🔍 [Swift Debug]   Expected topic hash: '\(expectedTopicHash)'")
-        print("🔍 [Swift Debug]   Found topic hashes: \(foundTopics)")
+        print("🔍 [Swift Debug]   Expected topic: '\(expectedTopic)'")
+        print("🔍 [Swift Debug]   Found topics: \(foundTopics)")
         print("🔍 [Swift Debug]   Is for our room: \(isForOurRoom)")
         
         if !isForOurRoom {
@@ -398,55 +349,5 @@ enum WebRTCSignal: Codable {
         }
         
         throw TrysteroError.invalidSignal
-    }
-}
-
-// MARK: - Persistent KeyPair Storage
-
-private struct KeyPairData: Codable {
-    let privateKey: String
-    let publicKey: String
-}
-
-private class KeychainHelper {
-    static func save(key: String, data: Data) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data
-        ]
-        
-        // Delete any existing item
-        SecItemDelete(query as CFDictionary)
-        
-        // Add new item
-        SecItemAdd(query as CFDictionary, nil)
-    }
-    
-    static func load(key: String) -> Data? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-        
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
-        if status == errSecSuccess {
-            return result as? Data
-        }
-        
-        return nil
-    }
-    
-    static func delete(key: String) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key
-        ]
-        
-        SecItemDelete(query as CFDictionary)
     }
 }

@@ -92,8 +92,9 @@ console.log(`🏠 Room ID: ${ROOM_ID}`)
 // Create room configuration (using minimal appId - Trystero.js requires non-empty appId)
 const roomConfig = {
   appId: 'trystero',  // Minimal appId that Trystero.js will accept
-  rtcPolyfill: RTCPeerConnection,
-  relays: RELAY_URLS
+  rtcPolyfill: RTCPeerConnection
+  // Note: Trystero.js seems to use its own default relay selection
+  // We'll debug what relays it actually uses
 }
 
 console.log('📋 Room configuration:', JSON.stringify(roomConfig, null, 2))
