@@ -4,7 +4,7 @@ import Foundation
 /// Singleton WebRTC factory
 enum WebRTCClient {
     private static let initializationQueue = DispatchQueue(label: "webrtc.init")
-    
+
     static let factory: RTCPeerConnectionFactory = {
         initializationQueue.sync {
             RTCInitializeSSL()
@@ -34,7 +34,7 @@ extension RTCPeerConnection {
             }
         }
     }
-    
+
     func answer(for constraints: RTCMediaConstraints?) async throws -> RTCSessionDescription {
         return try await withCheckedThrowingContinuation { continuation in
             self.answer(for: constraints ?? RTCMediaConstraints(mandatoryConstraints: nil, optionalConstraints: nil)) { sdp, error in
@@ -48,7 +48,7 @@ extension RTCPeerConnection {
             }
         }
     }
-    
+
     func setLocalDescription(_ sdp: RTCSessionDescription) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             self.setLocalDescription(sdp) { error in
@@ -60,7 +60,7 @@ extension RTCPeerConnection {
             }
         }
     }
-    
+
     func setRemoteDescription(_ sdp: RTCSessionDescription) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             self.setRemoteDescription(sdp) { error in
@@ -72,7 +72,7 @@ extension RTCPeerConnection {
             }
         }
     }
-    
+
     func add(_ candidate: RTCIceCandidate) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             self.add(candidate) { error in

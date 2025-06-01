@@ -14,7 +14,7 @@ public struct Config {
     public var relayUrls: [String]?
     public var relayRedundancy: Int
     public var rtcConfig: RTCConfiguration?
-    
+
     public init(
         appId: String,
         relayUrls: [String]? = nil,
@@ -31,7 +31,7 @@ public struct Config {
 /// WebRTC configuration
 public struct RTCConfiguration {
     public let iceServers: [IceServer]
-    
+
     public init(iceServers: [IceServer] = IceServer.defaults) {
         self.iceServers = iceServers
     }
@@ -41,11 +41,11 @@ public struct IceServer {
     public let urls: [String]
     public let username: String?
     public let credential: String?
-    
+
     public static let defaults = [
         IceServer(urls: ["stun:stun.l.google.com:19302"], username: nil, credential: nil)
     ]
-    
+
     public init(urls: [String], username: String? = nil, credential: String? = nil) {
         self.urls = urls
         self.username = username

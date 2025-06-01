@@ -36,15 +36,15 @@ let (sendMessage, onMessage) = room.makeAction("chat")
 var connectedPeers: Set<String> = []
 
 // Handle incoming messages
-onMessage { data, peerId in
+onMessage { data, _ in
     if let message = data as? [String: Any],
        let text = message["text"] as? String,
        let from = message["from"] as? String,
        let timestamp = message["timestamp"] as? Double {
-        
+
         let date = Date(timeIntervalSince1970: timestamp)
         let time = DateFormatter.localizedString(from: date, dateStyle: .none, timeStyle: .short)
-        
+
         print("\n[\(time)] \(from): \(text)")
         print("> ", terminator: "")
         fflush(stdout)
@@ -55,7 +55,7 @@ onMessage { data, peerId in
 room.onPeerJoin { peerId in
     connectedPeers.insert(peerId)
     print("\n✅ \(peerId) joined (Total peers: \(connectedPeers.count))")
-    
+
     // Send a welcome message
     let welcome: [String: Any] = [
         "text": "\(userName) joined the chat",
@@ -63,7 +63,7 @@ room.onPeerJoin { peerId in
         "timestamp": Date().timeIntervalSince1970
     ]
     sendMessage(welcome, peerId)
-    
+
     print("> ", terminator: "")
     fflush(stdout)
 }
@@ -89,13 +89,13 @@ fflush(stdout)
 
 while let input = readLine() {
     let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
-    
+
     if trimmed.isEmpty {
         print("> ", terminator: "")
         fflush(stdout)
         continue
     }
-    
+
     // Handle commands
     if trimmed.hasPrefix("/") {
         switch trimmed {
@@ -103,7 +103,7 @@ while let input = readLine() {
             print("👋 Goodbye!")
             room.leave()
             exit(0)
-            
+
         case "/peers", "/list":
             if connectedPeers.isEmpty {
                 print("No peers connected")
@@ -113,13 +113,13 @@ while let input = readLine() {
                     print("  • \(peer)")
                 }
             }
-            
+
         case "/room", "/info":
             print("Room: \(roomName)")
             print("Your ID: \(userName)")
             print("App ID: \(appId)")
             print("Connected peers: \(connectedPeers.count)")
-            
+
         default:
             print("Unknown command: \(trimmed)")
             print("Available commands: /peers, /room, /quit")
@@ -131,15 +131,15 @@ while let input = readLine() {
             "from": userName,
             "timestamp": Date().timeIntervalSince1970
         ]
-        
+
         // Broadcast to all peers
         sendMessage(message, nil)
-        
+
         // Show our own message
         let time = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .short)
         print("[\(time)] You: \(trimmed)")
     }
-    
+
     print("> ", terminator: "")
     fflush(stdout)
 }

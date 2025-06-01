@@ -19,6 +19,12 @@ jobs:
       with:
         xcode-version: latest-stable
         
+    - name: Install SwiftLint
+      run: brew install swiftlint
+      
+    - name: Lint Swift Code
+      run: swiftlint lint --strict
+      
     - name: Build
       run: swift build
       
@@ -46,6 +52,10 @@ jobs:
     - name: Install JavaScript Dependencies
       working-directory: Tests/Interop
       run: npm install
+      
+    - name: Lint JavaScript Code
+      working-directory: Tests/Interop
+      run: npm run lint
       
     - name: Test Swift <-> JavaScript Interoperability
       run: |
