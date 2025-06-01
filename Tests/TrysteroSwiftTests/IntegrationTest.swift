@@ -2,6 +2,7 @@ import XCTest
 @testable import TrysteroSwift
 
 /// Minimal integration test - verifies basic functionality
+@MainActor
 final class IntegrationTest: XCTestCase {
 
     /// Test basic room join/leave functionality

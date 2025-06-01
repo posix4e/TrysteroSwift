@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
+import * as polyfill from 'node-datachannel/polyfill'
 import {joinRoom} from 'trystero/nostr'
-import {polyfill} from 'node-datachannel/polyfill'
 import readline from 'readline'
 
-// Polyfill WebRTC for Node.js
-polyfill()
+// Apply polyfill globally
+Object.assign(globalThis, polyfill)
 
 // Configuration
 const roomName = process.env.CHAT_ROOM || 'trystero-chat-demo'

@@ -2,10 +2,11 @@
 
 // Minimal test harness for CI - verifies Swift <-> JS communication
 
+import * as polyfill from 'node-datachannel/polyfill'
 import {joinRoom} from 'trystero/nostr'
-import {polyfill} from 'node-datachannel/polyfill'
 
-polyfill()
+// Apply polyfill globally
+Object.assign(globalThis, polyfill)
 
 const roomId = process.env.INTEROP_ROOM_ID || 'swift-js-test'
 
