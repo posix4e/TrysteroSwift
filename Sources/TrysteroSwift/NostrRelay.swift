@@ -158,13 +158,15 @@ class NostrRelay: NostrClientDelegate {
             createdAt: Timestamp(date: Date()),
             kind: .custom(eventKind),
             tags: [Tag(id: "x", otherInformation: Self.sha1Hash("Trystero@\(config.appId)@\(namespace)"))],
-            content: "{\"type\":\"presence\",\"peerId\":\"\(selfId)\"}"
+            content: "{\"peerId\":\"\(selfId)\"}"
         )
 
         do {
             try event.sign(with: keyPair)
-            client.send(event: event) { _ in
-                // Best effort - presence announcements can fail
+            Task { @MainActor in
+                client.send(event: event) { _ in
+                    // Best effort - presence announcements can fail
+                }
             }
         } catch {
             // Non-fatal: presence will be re-announced
@@ -206,15 +208,21 @@ class NostrRelay: NostrClientDelegate {
         let fromPeerId = String(event.pubkey.prefix(20))
 
         if let data = content.data(using: .utf8),
-           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let type = json["type"] as? String {
-
-            if type == "presence" {
-                if let peerId = json["peerId"] as? String {
-                    onPeerPresence?(peerId)
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            
+            // Check if it's a presence announcement (just {peerId: "..."})
+            if let peerId = json["peerId"] as? String, json["type"] == nil {
+                onPeerPresence?(peerId)
+            }
+            // Otherwise check for typed messages
+            else if let type = json["type"] as? String {
+                if type == "presence" {
+                    if let peerId = json["peerId"] as? String {
+                        onPeerPresence?(peerId)
+                    }
+                } else if let signal = decodeSignal(from: json) {
+                    onSignal?(signal, fromPeerId)
                 }
-            } else if let signal = decodeSignal(from: json) {
-                onSignal?(signal, fromPeerId)
             }
         }
     }
