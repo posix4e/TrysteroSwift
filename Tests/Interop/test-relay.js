@@ -13,17 +13,17 @@ console.log(`🚀 Test relay starting on ws://localhost:${port}`)
 
 wss.on('connection', (ws) => {
   console.log('📱 Client connected')
-  
+
   ws.on('message', (data) => {
     try {
       const msg = JSON.parse(data.toString())
-      
+
       if (msg[0] === 'EVENT') {
         // Store and broadcast event
         const event = msg[1]
         events.push(event)
         console.log(`📨 Event: ${event.kind} from ${event.pubkey.substring(0, 8)}...`)
-        
+
         // Send to all matching subscriptions
         for (const [subId, sub] of subscriptions) {
           if (matchesFilters(event, sub.filters)) {
@@ -35,14 +35,14 @@ wss.on('connection', (ws) => {
         const subId = msg[1]
         const filters = msg.slice(2)
         subscriptions.set(subId, {ws, filters})
-        
+
         // Send existing events
         for (const event of events) {
           if (matchesFilters(event, filters)) {
             ws.send(JSON.stringify(['EVENT', subId, event]))
           }
         }
-        
+
         ws.send(JSON.stringify(['EOSE', subId]))
       } else if (msg[0] === 'CLOSE') {
         // Unsubscribe
@@ -52,7 +52,7 @@ wss.on('connection', (ws) => {
       console.error('❌ Error:', e.message)
     }
   })
-  
+
   ws.on('close', () => {
     // Remove subscriptions for this connection
     for (const [subId, sub] of subscriptions) {
@@ -65,7 +65,7 @@ function matchesFilters(event, filters) {
   // Simple filter matching - just check tags for now
   for (const filter of filters) {
     if (filter.kinds && !filter.kinds.includes(event.kind)) continue
-    
+
     // Check tags
     let matches = true
     for (const [key, values] of Object.entries(filter)) {
