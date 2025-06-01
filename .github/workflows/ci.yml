@@ -74,11 +74,11 @@ jobs:
         # Run Node.js interoperability test
         echo "🚀 Running Node.js Trystero interoperability test..."
         
-        # Run with timeout to avoid hanging CI
-        timeout 60 node trystero-node.js || {
+        # Run with timeout to avoid hanging CI (using portable Perl alarm)
+        perl -e 'alarm shift; exec @ARGV' 60 node trystero-node.js || {
           EXIT_CODE=$?
           
-          if [ $EXIT_CODE -eq 124 ]; then
+          if [ $EXIT_CODE -eq 142 ]; then
             echo "❌ TIMEOUT: Test reached 60 second timeout"
             echo "⚠️  This could indicate:"
             echo "   - Slow relay connectivity"  
