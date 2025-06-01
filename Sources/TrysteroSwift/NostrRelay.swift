@@ -13,6 +13,7 @@ class NostrRelay: NostrClientDelegate {
     private var client: NostrClient
     private var subscriptions: Set<String> = []
     private let eventKind: UInt16
+    private var peerIdToPubkey: [String: String] = [:]  // Maps internal peerIds to Nostr pubkeys
 
     var onSignal: ((Signal, String) -> Void)?
     var onPeerPresence: ((String) -> Void)?
@@ -87,6 +88,12 @@ class NostrRelay: NostrClientDelegate {
     }
 
     func sendSignal(_ signal: Signal, to peerId: String) async throws {
+        // Look up the Nostr pubkey for this peerId
+        guard let targetPubkey = peerIdToPubkey[peerId] else {
+            // If we don't have the mapping, we can't send the signal
+            throw TrysteroError.peerNotFound(peerId)
+        }
+        
         let content = encodeSignal(signal)
 
         var event = Event(
@@ -95,7 +102,7 @@ class NostrRelay: NostrClientDelegate {
             kind: .custom(eventKind),
             tags: [
                 Tag(id: "x", otherInformation: Self.sha1Hash("Trystero@\(config.appId)@\(namespace)")),
-                Tag(id: "p", otherInformation: peerId)
+                Tag(id: "p", otherInformation: targetPubkey)
             ],
             content: content
         )
@@ -212,12 +219,16 @@ class NostrRelay: NostrClientDelegate {
 
             // Check if it's a presence announcement (just {peerId: "..."})
             if let peerId = json["peerId"] as? String, json["type"] == nil {
+                // Store mapping between internal peerId and Nostr pubkey
+                peerIdToPubkey[peerId] = event.pubkey
                 onPeerPresence?(peerId)
             }
             // Otherwise check for typed messages
             else if let type = json["type"] as? String {
                 if type == "presence" {
                     if let peerId = json["peerId"] as? String {
+                        // Store mapping for typed presence too
+                        peerIdToPubkey[peerId] = event.pubkey
                         onPeerPresence?(peerId)
                     }
                 } else if let signal = decodeSignal(from: json) {
