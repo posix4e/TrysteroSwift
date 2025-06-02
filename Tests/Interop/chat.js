@@ -23,11 +23,7 @@ console.log('📡 Connecting to Nostr relays...')
 // Join room
 const room = joinRoom({
   appId: appId,
-  relayUrls: [
-    'wss://relay.damus.io',
-    'wss://nos.lol',
-    'wss://relay.nostr.band'
-  ]
+  relayUrls: [ 'ws://localhost:7447' ]
 }, roomName)
 
 // Create chat action

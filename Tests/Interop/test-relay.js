@@ -3,7 +3,7 @@
 // Minimal Nostr relay for testing - just broadcasts everything
 import {WebSocketServer} from 'ws'
 
-const port = process.env.RELAY_PORT || 7777
+const port = process.env.RELAY_PORT || 7447
 const wss = new WebSocketServer({port})
 
 const subscriptions = new Map() // subId -> {ws, filters}

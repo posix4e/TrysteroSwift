@@ -17,14 +17,16 @@ print("🏠 Room: \(roomName)")
 print("📡 Connecting to Nostr relays...")
 
 // Create room with custom relays for better reliability
+let relayUrls = ProcessInfo.processInfo.environment["RELAY_URLS"]?
+    .split(separator: ",")
+    .map { String($0).trimmingCharacters(in: .whitespaces) } ?? [
+        "ws://localhost:7447"
+    ]
+
 let config = Config(
     appId: appId,
-    relayUrls: [
-        "wss://relay.damus.io",
-        "wss://nos.lol",
-        "wss://relay.nostr.band"
-    ],
-    relayRedundancy: 3
+    relayUrls: relayUrls,
+    relayRedundancy: relayUrls.count
 )
 
 let room = Trystero.joinRoom(config, roomName)
