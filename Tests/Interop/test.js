@@ -62,9 +62,9 @@ class NostrRelay {
               // Send OK
               ws.send(JSON.stringify(['OK', event.id, true, '']))
 
-              // Broadcast to subscribers
+              // Broadcast to subscribers (except sender)
               for (const [subId, sub] of this.subscriptions) {
-                if (this.matchesFilters(event, sub.filters)) {
+                if (sub.ws !== ws && this.matchesFilters(event, sub.filters)) {
                   sub.ws.send(JSON.stringify(['EVENT', subId, event]))
                 }
               }
@@ -246,57 +246,121 @@ class TestRunner {
   }
 
   async runJSToJS() {
-    console.log('\n🧪 Testing JS-to-JS communication...\n')
+    console.log('\n🧪 Testing JS-to-JS WebRTC communication...\n')
 
     await this.startRelay()
 
     const roomId = 'test-room-' + Date.now()
+    const appId = 'test-interop'
+    
+    // Test results tracking
+    const results = {
+      alice: { connected: false, sent: false, received: false, messages: [] },
+      bob: { connected: false, sent: false, received: false, messages: [] }
+    }
 
-    // Start first JS chat
-    const js1 = spawn('node', ['test.js', 'chat'], {
-      cwd: __dirname,
-      env: {
-        ...process.env,
-        USER_NAME: 'JS-Alice',
-        CHAT_ROOM: roomId
+    // Create Alice
+    console.log('👤 Creating Alice...')
+    const aliceRoom = joinRoom({
+      appId: appId,
+      relayUrls: ['ws://localhost:7447']
+    }, roomId)
+
+    const [aliceSend, aliceReceive] = aliceRoom.makeAction('test')
+
+    aliceRoom.onPeerJoin(peerId => {
+      console.log('[Alice] ✅ Peer joined:', peerId)
+      results.alice.connected = true
+      
+      // Send test message when peer joins
+      setTimeout(() => {
+        console.log('[Alice] 📤 Sending: "Hello from Alice!"')
+        aliceSend({ from: 'Alice', text: 'Hello from Alice!', timestamp: Date.now() }, peerId)
+        results.alice.sent = true
+      }, 500)
+    })
+
+    aliceReceive((data, peerId) => {
+      console.log('[Alice] 📥 Received:', data)
+      results.alice.received = true
+      results.alice.messages.push(data)
+      
+      // Respond to Bob's message
+      if (data.from === 'Bob' && !data.response) {
+        console.log('[Alice] 📤 Sending response: "Got your message, Bob!"')
+        aliceSend({ from: 'Alice', text: 'Got your message, Bob!', response: true }, peerId)
       }
     })
 
-    js1.stdout.on('data', data => {
-      process.stdout.write(`[JS-Alice] ${data}`)
-    })
-
-    this.processes.push(js1)
-    await this.delay(2000)
-
-    // Start second JS chat
-    const js2 = spawn('node', ['test.js', 'chat'], {
-      cwd: __dirname,
-      env: {
-        ...process.env,
-        USER_NAME: 'JS-Bob',
-        CHAT_ROOM: roomId
-      }
-    })
-
-    js2.stdout.on('data', data => {
-      process.stdout.write(`[JS-Bob] ${data}`)
-    })
-
-    this.processes.push(js2)
-    await this.delay(3000)
-
-    // Send test messages
-    console.log('\n📤 Sending test messages...\n')
-
-    js1.stdin.write('Hello from Alice!\n')
     await this.delay(1000)
 
-    js2.stdin.write('Hi from Bob!\n')
-    await this.delay(2000)
+    // Create Bob
+    console.log('👤 Creating Bob...')
+    const bobRoom = joinRoom({
+      appId: appId,
+      relayUrls: ['ws://localhost:7447']
+    }, roomId)
 
-    console.log('\n✅ JS-to-JS test complete!')
-    return true
+    const [bobSend, bobReceive] = bobRoom.makeAction('test')
+
+    bobRoom.onPeerJoin(peerId => {
+      console.log('[Bob] ✅ Peer joined:', peerId)
+      results.bob.connected = true
+      
+      // Send test message when peer joins
+      setTimeout(() => {
+        console.log('[Bob] 📤 Sending: "Hello from Bob!"')
+        bobSend({ from: 'Bob', text: 'Hello from Bob!', timestamp: Date.now() }, peerId)
+        results.bob.sent = true
+      }, 500)
+    })
+
+    bobReceive((data, peerId) => {
+      console.log('[Bob] 📥 Received:', data)
+      results.bob.received = true
+      results.bob.messages.push(data)
+      
+      // Respond to Alice's message
+      if (data.from === 'Alice' && !data.response) {
+        console.log('[Bob] 📤 Sending response: "Got your message, Alice!"')
+        bobSend({ from: 'Bob', text: 'Got your message, Alice!', response: true }, peerId)
+      }
+    })
+
+    // Wait for peer discovery and message exchange
+    console.log('\n⏳ Waiting for WebRTC connection and message exchange...')
+    await this.delay(5000)
+
+    // Check results
+    console.log('\n📊 Test Results:')
+    console.log('================')
+    console.log(`Alice - Connected: ${results.alice.connected}, Sent: ${results.alice.sent}, Received: ${results.alice.received}, Messages: ${results.alice.messages.length}`)
+    console.log(`Bob - Connected: ${results.bob.connected}, Sent: ${results.bob.sent}, Received: ${results.bob.received}, Messages: ${results.bob.messages.length}`)
+
+    // Verify bidirectional communication
+    const success = 
+      results.alice.connected && results.bob.connected &&
+      results.alice.sent && results.bob.sent &&
+      results.alice.received && results.bob.received &&
+      results.alice.messages.length >= 1 && results.bob.messages.length >= 1
+
+    if (success) {
+      console.log('\n✅ WebRTC bidirectional communication verified!')
+    } else {
+      console.log('\n❌ WebRTC communication failed!')
+      if (!results.alice.connected || !results.bob.connected) {
+        console.log('  - Peers did not connect via WebRTC')
+      }
+      if (!results.alice.received || !results.bob.received) {
+        console.log('  - Messages were not received over data channels')
+      }
+    }
+
+    // Cleanup
+    aliceRoom.leave()
+    bobRoom.leave()
+
+    return success
   }
 
   async runSwiftToSwift() {
@@ -355,14 +419,22 @@ class TestRunner {
   }
 
   async runJSToSwift() {
-    console.log('\n🧪 Testing JS-to-Swift communication...\n')
+    console.log('\n🧪 Testing JS-to-Swift WebRTC communication...\n')
 
     await this.startRelay()
 
     const roomId = 'test-room-' + Date.now()
+    const appId = 'trystero-swift-chat'
     const swiftPath = path.join(__dirname, '../../Examples/Chat/.build/debug/TrysteroChat')
+    
+    // Test results tracking
+    const results = {
+      js: { connected: false, sent: false, received: false, messages: [] },
+      swift: { output: [] }
+    }
 
-    // Start Swift chat
+    // Start Swift chat first
+    console.log('🦉 Starting Swift client...')
     const swift = spawn(swiftPath, [], {
       env: {
         ...process.env,
@@ -373,40 +445,90 @@ class TestRunner {
     })
 
     swift.stdout.on('data', data => {
-      process.stdout.write(`[Swift] ${data}`)
+      const output = data.toString()
+      process.stdout.write(`[Swift] ${output}`)
+      results.swift.output.push(output)
+      
+      // Check for peer connection
+      if (output.includes('joined')) {
+        results.js.connected = true
+      }
     })
 
     this.processes.push(swift)
     await this.delay(3000)
 
-    // Start JS chat
-    const js = spawn('node', ['test.js', 'chat'], {
-      cwd: __dirname,
-      env: {
-        ...process.env,
-        USER_NAME: 'JS-User',
-        CHAT_ROOM: roomId
-      }
+    // Create JS client
+    console.log('📦 Creating JS client...')
+    const jsRoom = joinRoom({
+      appId: appId,
+      relayUrls: ['ws://localhost:7447']
+    }, roomId)
+
+    const [jsSend, jsReceive] = jsRoom.makeAction('chat')
+
+    jsRoom.onPeerJoin(peerId => {
+      console.log('[JS] ✅ Peer joined:', peerId)
+      results.js.connected = true
+      
+      // Send test message when peer joins
+      setTimeout(() => {
+        console.log('[JS] 📤 Sending: "Hello from JavaScript!"')
+        jsSend({ 
+          text: 'Hello from JavaScript!',
+          from: 'JS-User',
+          timestamp: Date.now() / 1000
+        }, peerId)
+        results.js.sent = true
+      }, 1000)
     })
 
-    js.stdout.on('data', data => {
-      process.stdout.write(`[JS] ${data}`)
+    jsReceive((data, peerId) => {
+      console.log('[JS] 📥 Received:', data)
+      results.js.received = true
+      results.js.messages.push(data)
     })
 
-    this.processes.push(js)
-    await this.delay(3000)
-
-    // Send test messages
-    console.log('\n📤 Sending test messages...\n')
-
-    js.stdin.write('Hello from JavaScript!\n')
-    await this.delay(1000)
-
-    swift.stdin.write('Hello from Swift!\n')
     await this.delay(2000)
 
-    console.log('\n✅ JS-to-Swift test complete!')
-    return true
+    // Send a message from Swift
+    console.log('\n📤 Sending message from Swift...')
+    swift.stdin.write('Hello from Swift!\n')
+    
+    // Wait for message exchange
+    console.log('\n⏳ Waiting for WebRTC message exchange...')
+    await this.delay(5000)
+
+    // Check results
+    console.log('\n📊 Test Results:')
+    console.log('================')
+    console.log(`JS - Connected: ${results.js.connected}, Sent: ${results.js.sent}, Received: ${results.js.received}, Messages: ${results.js.messages.length}`)
+    
+    // Check Swift output for received messages
+    const swiftReceivedMessage = results.swift.output.some(line => 
+      line.includes('JS-User') || line.includes('Hello from JavaScript')
+    )
+    console.log(`Swift - Received message: ${swiftReceivedMessage}`)
+
+    const success = results.js.connected && results.js.sent && 
+                   (results.js.received || swiftReceivedMessage)
+
+    if (success) {
+      console.log('\n✅ JS-to-Swift WebRTC communication established!')
+    } else {
+      console.log('\n❌ JS-to-Swift WebRTC communication failed!')
+      if (!results.js.connected) {
+        console.log('  - Peers did not connect via WebRTC')
+      }
+      if (!results.js.received && !swiftReceivedMessage) {
+        console.log('  - No messages were exchanged over data channels')
+      }
+    }
+
+    // Cleanup
+    jsRoom.leave()
+
+    return success
   }
 
   async runAllTests() {
