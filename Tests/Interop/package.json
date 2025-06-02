@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node test.js",
+    "lint": "eslint .",
     "relay": "node test.js relay",
     "chat": "node test.js chat",
     "test:js-js": "node test.js js-js",
