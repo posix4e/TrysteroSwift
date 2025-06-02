@@ -37,8 +37,14 @@ jobs:
     - name: Lint Swift Code
       run: swiftlint lint 
       
-    - name: Interop test
-      working-directory: Tests/Interop
+    - name: Build Swift Examples
       run: |
-        npm run lint
-        npm run test
+        cd Examples/Chat && swift build
+        
+    - name: Lint JavaScript
+      working-directory: Tests/Interop
+      run: npm run lint
+      
+    - name: Run All Interop Tests
+      working-directory: Tests/Interop
+      run: npm test

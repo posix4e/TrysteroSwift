@@ -5,12 +5,11 @@
   "type": "module",
   "scripts": {
     "test": "node test.js",
-    "test-relay": "node test-relay.js",
-    "chat": "node chat.js",
-    "relay": "node test-runner.js relay",
-    "test:js-js": "node test-runner.js js-js",
-    "test:js-swift": "node test-runner.js js-swift",
-    "test:swift-swift": "node test-runner.js swift-swift"
+    "relay": "node test.js relay",
+    "chat": "node test.js chat",
+    "test:js-js": "node test.js js-js",
+    "test:swift-swift": "node test.js swift-swift",
+    "test:js-swift": "node test.js js-swift"
   },
   "dependencies": {
     "@roamhq/wrtc": "^0.9.0",
