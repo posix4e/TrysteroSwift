@@ -57,9 +57,9 @@ class NostrRelay {
             if (msg[0] === 'EVENT') {
               const event = msg[1]
               this.events.push(event)
-              console.log(`📨 Event: ${event.kind} from ${event.pubkey.substring(0, 8)}...`)
+              console.log(`📨 Event: ${event.kind} from ${event.pubkey.substring(0, 8)}... content: ${event.content?.substring(0, 50)}...`)
 
-              // Send OK
+              // Send OK response immediately
               ws.send(JSON.stringify(['OK', event.id, true, '']))
 
               // Broadcast to subscribers (except sender)
@@ -71,6 +71,7 @@ class NostrRelay {
             } else if (msg[0] === 'REQ') {
               const subId = msg[1]
               const filters = msg.slice(2)
+              console.log(`📋 REQ ${subId}: filters:`, JSON.stringify(filters))
               this.subscriptions.set(subId, {ws, filters})
 
               // Send existing events
@@ -248,10 +249,12 @@ class TestRunner {
   async runJSToJS() {
     console.log('\n🧪 Testing JS-to-JS WebRTC communication...\n')
 
-    await this.startRelay()
+    // Use a public test relay instead of our local one
+    console.log('📡 Using public test relay...')
 
     const roomId = 'test-room-' + Date.now()
     const appId = 'test-interop'
+    const relayUrl = 'wss://relay.nostr.band'  // Public relay for testing
     
     // Test results tracking
     const results = {
@@ -263,7 +266,7 @@ class TestRunner {
     console.log('👤 Creating Alice...')
     const aliceRoom = joinRoom({
       appId: appId,
-      relayUrls: ['ws://localhost:7447']
+      relayUrls: [relayUrl]
     }, roomId)
 
     const [aliceSend, aliceReceive] = aliceRoom.makeAction('test')
@@ -298,8 +301,11 @@ class TestRunner {
     console.log('👤 Creating Bob...')
     const bobRoom = joinRoom({
       appId: appId,
-      relayUrls: ['ws://localhost:7447']
+      relayUrls: [relayUrl]
     }, roomId)
+    
+    // Give Bob time to connect
+    await this.delay(1000)
 
     const [bobSend, bobReceive] = bobRoom.makeAction('test')
 
