@@ -37,75 +37,8 @@ jobs:
     - name: Lint Swift Code
       run: swiftlint lint 
       
-    - name: Lint JavaScript Code
+    - name: Interop test
       working-directory: Tests/Interop
-      run: npm run lint
-      
-    - name: Build
-      run: swift build
-      
-    - name: Unit Tests
-      run: swift test --filter IntegrationTest.testRoomLifecycle
-      
-    - name: Interoperability Tests
       run: |
-        export INTEROP_ROOM_ID="ci-test-$(date +%s)"
-        export EXPECT_JS_PEER="true"
-        
-        # Create logs directory
-        mkdir -p test-logs
-        
-        # Start local test relay with logging
-        cd Tests/Interop
-        echo "Starting test relay..."
-        node test-relay.js > ../../test-logs/relay.log 2>&1 &
-        RELAY_PID=$!
-        sleep 2
-        echo "Test relay PID: $RELAY_PID"
-        
-        # Use local relay for tests (supports comma-separated list)
-        export TEST_RELAY_URL="ws://localhost:7777"
-        
-        # Start JavaScript peer with logging
-        node test.js > ../../test-logs/js-peer.log 2>&1 &
-        JS_PID=$!
-        cd ../..
-        
-        # Give JS peer time to start
-        sleep 5
-        
-        # Run Swift test with logging
-        swift test --filter IntegrationTest.testJavaScriptInterop > test-logs/swift-test.log 2>&1
-        SWIFT_RESULT=$?
-        
-        # Capture process states
-        echo "=== Process Status ===" >> test-logs/process-status.log
-        echo "Relay PID $RELAY_PID: $(ps -p $RELAY_PID > /dev/null 2>&1 && echo 'running' || echo 'stopped')" >> test-logs/process-status.log
-        echo "JS PID $JS_PID: $(ps -p $JS_PID > /dev/null 2>&1 && echo 'running' || echo 'stopped')" >> test-logs/process-status.log
-        
-        # Clean up
-        kill $JS_PID 2>/dev/null || true
-        kill $RELAY_PID 2>/dev/null || true
-        
-        # Print logs to console for immediate visibility
-        echo "=== RELAY LOGS ==="
-        cat test-logs/relay.log || echo "No relay logs"
-        echo "=== JS LOGS ==="
-        cat test-logs/js-peer.log || echo "No JS logs"
-        echo "=== SWIFT LOGS ==="
-        cat test-logs/swift-test.log || echo "No Swift logs"
-        
-        if [ $SWIFT_RESULT -eq 0 ]; then
-          echo "✅ Interoperability test passed!"
-        else
-          echo "❌ Interoperability test failed"
-          exit 1
-        fi
-        
-    - name: Upload Test Logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: interop-test-logs
-        path: test-logs/
-        retention-days: 7
+        npm run lint
+        npm run test

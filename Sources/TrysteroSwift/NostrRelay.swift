@@ -1,5 +1,6 @@
 import Foundation
 @preconcurrency import NostrClient
+import Nostr
 import CryptoKit
 
 /// Handles Nostr relay communication for signaling
@@ -162,7 +163,7 @@ class NostrRelay: NostrClientDelegate {
 
         let rootFilter = Filter(
             kinds: [.custom(rootEventKind)],
-            tags: [Tag(id: "x", otherInformation: rootTopicHash)]
+            tags: [Tag(id: "x", otherInformation: [rootTopicHash])]
         )
 
         let rootSubId = UUID().uuidString
@@ -177,7 +178,7 @@ class NostrRelay: NostrClientDelegate {
 
         let selfFilter = Filter(
             kinds: [.custom(selfEventKind)],
-            tags: [Tag(id: "x", otherInformation: selfTopicHash)]
+            tags: [Tag(id: "x", otherInformation: [selfTopicHash])]
         )
 
         let selfSubId = UUID().uuidString
