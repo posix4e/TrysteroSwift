@@ -2,17 +2,34 @@
   "name": "trystero-swift-interop-test",
   "version": "1.0.0",
   "description": "Interoperability test between TrysteroSwift and Trystero.js",
-  "main": "trystero-node.js",
   "type": "module",
   "scripts": {
-    "test": "node trystero-node.js",
-    "install-deps": "npm install"
+    "test": "node test.js",
+    "lint": "eslint .",
+    "relay": "node test.js relay",
+    "chat": "node test.js chat",
+    "test:js-js": "node test.js js-js",
+    "test:swift-swift": "node test.js swift-swift",
+    "test:js-swift": "node test.js js-swift"
   },
   "dependencies": {
-    "node-datachannel": "*",
+    "@roamhq/wrtc": "^0.9.0",
+    "node-datachannel": "^0.27.0",
     "trystero": "^0.21.4",
-    "ws": "^8.14.2",
-    "typescript": "^5.3.0",
-    "@types/node": "^20.10.0"
-  }
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "trystero",
+    "webrtc",
+    "p2p",
+    "swift"
+  ],
+  "author": "TrysteroSwift Team",
+  "license": "MIT"
 }

@@ -1,160 +1,167 @@
 # TrysteroSwift
 
-A Swift library for decentralized peer-to-peer communication using Nostr for peer discovery and WebRTC for data channels. TrysteroSwift provides a Trystero-compatible API for building serverless, real-time applications.
+A Swift implementation of [Trystero](https://github.com/dmotz/trystero) - serverless WebRTC matchmaking for decentralized applications. Compatible with Trystero.js for cross-platform peer-to-peer communication.
 
 ## Features
 
-🌐 **Decentralized** - No central servers required, uses Nostr relays for signaling  
-🔗 **WebRTC** - Direct peer-to-peer data channels for low-latency communication  
-🏠 **Room-based** - Organize peers into named rooms for group communication  
-⚡ **Real-time** - Instant message delivery once P2P connections are established  
-🔒 **Privacy-focused** - Data flows directly between peers after initial discovery  
+🌐 **Decentralized** - No servers required, uses Nostr relays for peer discovery  
+🔗 **WebRTC** - Direct peer-to-peer connections for low-latency communication  
+🏠 **Room-based** - Organize peers into namespaces  
+⚡ **Real-time** - Instant bidirectional data channels  
+🔄 **Trystero.js Compatible** - Works seamlessly with JavaScript peers  
 
-## Quick Start
-
-### Installation
-
-Add TrysteroSwift to your Swift package:
+## Installation
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/posix4e/TrysteroSwift.git", from: "1.0.0")
+    .package(url: "https://github.com/posix4e/TrysteroSwift.git", from: "2.0.0")
 ]
 ```
 
-### Basic Usage
+## Quick Start
 
 ```swift
 import TrysteroSwift
 
-// Create a room configuration
-let config = RoomConfig(relays: [
-    "wss://relay.damus.io",
-    "wss://nos.lol"
-])
+// Join a room (matching Trystero.js API)
+let config = Config(appId: "my-app")
+let room = Trystero.joinRoom(config, "my-room")
 
-// Join a room
-let room = try Trystero.joinRoom(config: config, roomId: "my-awesome-room")
-try await room.join()
+// Make actions (data channels)
+let (sendChat, getChat) = room.makeAction("chat")
+let (sendFile, getFile) = room.makeAction("file")
 
-// Send data to all peers
-let message = "Hello, decentralized world!".data(using: .utf8)!
-try room.send(message)
-
-// Send data to specific peer
-try room.send(message, to: "peer-id")
-
-// Handle events
+// Handle peer events
 room.onPeerJoin { peerId in
     print("Peer joined: \(peerId)")
+    sendChat("Welcome!", peerId)
 }
 
 room.onPeerLeave { peerId in
     print("Peer left: \(peerId)")
 }
 
-room.onData { data, peerId in
-    let message = String(data: data, encoding: .utf8) ?? "Unknown"
-    print("Received from \(peerId): \(message)")
+// Receive data
+getChat { message, peerId in
+    print("\(peerId): \(message)")
 }
 
-// Leave the room
-await room.leave()
+getFile { fileData, peerId in
+    // Handle file data
+}
+
+// Broadcast to all peers
+sendChat("Hello everyone!", nil)
+
+// Clean up
+room.leave()
 ```
 
-## Architecture
+## JavaScript Compatibility
 
-TrysteroSwift combines two powerful technologies:
+TrysteroSwift is designed to be fully compatible with [Trystero.js](https://github.com/dmotz/trystero):
 
-1. **Nostr** - Decentralized relay network for peer discovery and WebRTC signaling
-2. **WebRTC** - Direct peer-to-peer data channels for actual communication
+```javascript
+// JavaScript peer
+import {joinRoom} from 'trystero/nostr'
 
-### Connection Flow
+const room = joinRoom({appId: 'my-app'}, 'my-room')
+const [send, recv] = room.makeAction('chat')
 
+recv((data, peerId) => console.log(`${peerId}: ${data}`))
+room.onPeerJoin(id => send('Hello from JS!', id))
 ```
-1. Join Room → 2. Discover Peers → 3. Exchange Signals → 4. Direct P2P
-     ↓              ↓ (via Nostr)      ↓ (via Nostr)      ↓ (WebRTC)
-   [Relay]        [Relay]           [Relay]          [Peer ←→ Peer]
-```
 
-After the initial handshake, all communication bypasses the Nostr relays and flows directly between peers.
+```swift
+// Swift peer - fully compatible!
+let room = Trystero.joinRoom(Config(appId: "my-app"), "my-room")
+let (send, recv) = room.makeAction("chat")
+
+recv { data, peerId in print("\(peerId): \(data)") }
+room.onPeerJoin { id in send("Hello from Swift!", id) }
+```
 
 ## API Reference
 
-### RoomConfig
-
-Configure Nostr relays and other room settings:
+### Configuration
 
 ```swift
-let config = RoomConfig(
-    relays: ["wss://relay.damus.io", "wss://nos.lol"],
-    password: nil  // Future: room passwords
+let config = Config(
+    appId: "my-app",              // Required: identifies your app
+    relayUrls: ["wss://..."],     // Optional: custom Nostr relays
+    relayRedundancy: 2,           // Optional: number of relays to use
+    rtcConfig: RTCConfiguration() // Optional: custom WebRTC config
 )
 ```
 
-### TrysteroRoom
-
-Main interface for room-based communication:
+### Room Methods
 
 ```swift
-// Join/leave
-try await room.join()
-await room.leave()
+// Create actions (data channels)
+let (send, receive) = room.makeAction("action-name")
 
 // Send data
-try room.send(data)                    // Broadcast to all
-try room.send(data, to: peerId)        // Send to specific peer
+send("Hello", nil)        // Broadcast to all
+send("Hello", peerId)     // Send to specific peer
 
-// Get current peers
-let peerIds = room.getPeers()
-
-// Event handlers
-room.onPeerJoin { peerId in /* ... */ }
-room.onPeerLeave { peerId in /* ... */ }
-room.onData { data, peerId in /* ... */ }
-```
-
-### Error Handling
-
-```swift
-do {
-    try room.send(data, to: "unknown-peer")
-} catch TrysteroError.peerNotConnected {
-    print("Peer is not connected")
-} catch TrysteroError.connectionFailed {
-    print("WebRTC connection failed")
-} catch TrysteroError.nostrError {
-    print("Nostr relay error")
+// Receive data
+receive { data, peerId in
+    // Handle received data
 }
+
+// Media streams (audio/video)
+room.addStream(stream)
+room.removeStream(stream)
+room.onPeerStream { stream, peerId in 
+    // Handle incoming stream
+}
+
+// Peer management
+let peers = room.getPeers()  // Get connected peer IDs
+room.leave()                  // Leave room and cleanup
 ```
 
-## Platform Support
+## How It Works
 
-- **iOS** 13.0+
-- **macOS** 14.0+
-- **Swift** 6.1+
+1. **Peer Discovery** - Peers find each other via Nostr relay announcements
+2. **Signaling** - WebRTC offers/answers exchanged through Nostr events  
+3. **Direct Connection** - WebRTC data channels established between peers
+4. **Communication** - All data flows directly peer-to-peer
 
 ## Requirements
 
-TrysteroSwift uses binary WebRTC frameworks and requires:
-- Xcode with Swift Package Manager
-- Network permissions for WebRTC connections
-- Internet connectivity for Nostr relay access
+- iOS 17.0+ / macOS 14.0+
+- Swift 6.0+
+- Xcode 15.0+
 
-## Comparison with Trystero
+## Examples
 
-TrysteroSwift aims for API compatibility with the original JavaScript [Trystero](https://github.com/dmotz/trystero) library:
+See the [Chat Example](Examples/Chat/) for a complete working application demonstrating all features.
 
-| Feature | Trystero (JS) | TrysteroSwift |
-|---------|---------------|---------------|
-| **Peer Discovery** | Multiple strategies | Nostr-only |
-| **API Style** | Callback-based | async/await + callbacks |
-| **Platform** | Web browsers | iOS/macOS native |
-| **Language** | JavaScript | Swift |
+```bash
+cd Examples/Chat
+swift run TrysteroChat
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+swift test
+```
+
+For JavaScript interoperability tests:
+
+```bash
+cd Tests/Interop
+npm install
+npm test
+```
 
 ## Contributing
 
-We welcome contributions! Please see our contributing guidelines and:
+We welcome contributions! Please:
 
 1. Fork the repository
 2. Create a feature branch
@@ -168,16 +175,10 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-- [Trystero](https://github.com/dmotz/trystero) - Original JavaScript implementation and API design
+- [Trystero](https://github.com/dmotz/trystero) - Original JavaScript implementation
 - [Nostr Protocol](https://nostr.com) - Decentralized relay network
 - [WebRTC](https://webrtc.org) - Real-time communication standard
-- [Galaxoid Labs NostrClient](https://github.com/Galaxoid-Labs/NostrClient) - Swift Nostr implementation
-
-## Related Projects
-
-- [Trystero](https://github.com/dmotz/trystero) - Original JavaScript library
-- [NostrClient](https://github.com/Galaxoid-Labs/NostrClient) - Swift Nostr client
-- [WebRTC-iOS](https://github.com/stasel/WebRTC) - WebRTC framework for iOS
+- [Galaxoid Labs NostrClient](https://github.com/Galaxoid-Labs/NostrClient) - Swift Nostr client
 
 ---
 

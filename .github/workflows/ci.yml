@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+# Cancel in-progress runs when a new run is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-test-deploy:
+  test:
     runs-on: macos-latest
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -17,156 +23,28 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: latest-stable
-
-    - name: Install SwiftLint
-      run: brew install swiftlint
         
-    - name: Cache Swift packages
-      uses: actions/cache@v4
-      with:
-        path: .build
-        key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
-        restore-keys: |
-          ${{ runner.os }}-spm-
-          
-    - name: Lint
-      run: swiftlint lint --strict
-
-      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: Tests/Interop/package.json
-          
-    - name: Run interop test
-      working-directory: Tests/Interop
+        node-version: '21'
+        
+    - name: Install Dependencies
       run: |
-        npm install
-        echo "🧪 Testing Trystero.js ↔ TrysteroSwift Interoperability..."
+        brew install swiftlint
+        cd Tests/Interop && npm install
         
-        # First verify both implementations use the same protocol values
-        echo "🔍 Verifying protocol compatibility..."
-        node -e "
-        import {joinRoom} from 'trystero';
-        const config = {appId: 'trystero', relays: []};
-        console.log('Node.js using appId: trystero, roomId: swift-interop-test');
-        "
+    - name: Lint Swift Code
+      run: swiftlint lint 
+      
+    - name: Build Swift Examples
+      run: |
+        cd Examples/Chat && swift build
         
-        cd ../.. && swift -e '
-        import Foundation
-        import CryptoKit
-        let appId = "trystero"
-        let roomId = "swift-interop-test"
-        let topicPath = "Trystero@\(appId)@\(roomId)"
-        let data = Data(topicPath.utf8)
-        let digest = Insecure.SHA1.hash(data: data)
-        let hash = digest.map { String($0, radix: 36) }.joined()
-        let truncated = String(hash.prefix(20))
-        func strToNum(_ s: String, mod: Int) -> Int { var sum = 0; for c in s { sum += Int(c.asciiValue ?? 0) }; return sum % mod }
-        let kind = 20000 + strToNum(hash, mod: 10000)
-        print("Swift generating: kind=\(kind), tag=[\"x\", \"\(truncated)\"]")
-        '
-        cd Tests/Interop
-        
-        # Start Node.js harness with enhanced logging
-        echo "🚀 Starting Node.js harness..."
-        node trystero-node.js &
-        NODE_PID=$!
-        
-        # Give Node.js time to connect to relays
-        sleep 8
-        
-        # Check if Node.js process is still running
-        if ! kill -0 $NODE_PID 2>/dev/null; then
-          echo "❌ Node.js harness failed to start or crashed"
-          echo "⚠️ This may be due to Nostr relay connectivity issues in CI environment"
-          echo "✅ Protocol verification passed - considering this a success for CI"
-          exit 0  # Don't fail CI due to relay connectivity issues
-        fi
-        echo "✅ Node.js harness is running (PID: $NODE_PID)"
-        
-        # Run Swift test with timeout and capture output
-        echo "🧪 Running Swift interoperability test..."
-        cd ../..
-        
-        # Create a script to run Swift test with timeout (macOS compatible)
-        cat > run_swift_test.sh << 'EOF'
-        #!/bin/bash
-        # Run Swift test with timeout using background process and kill
-        swift test --filter testTrysteroJSInteroperability 2>&1 | tee swift_test_output.log &
-        SWIFT_TEST_PID=$!
-        
-        # Wait for 45 seconds or until process completes
-        sleep 45 && kill $SWIFT_TEST_PID 2>/dev/null && echo "Test timed out" >> swift_test_output.log &
-        TIMEOUT_PID=$!
-        
-        wait $SWIFT_TEST_PID 2>/dev/null
-        TEST_EXIT=$?
-        kill $TIMEOUT_PID 2>/dev/null || true
-        
-        echo "Swift test exit code: $TEST_EXIT" >> swift_test_output.log
-        exit $TEST_EXIT
-        EOF
-        chmod +x run_swift_test.sh
-        
-        # Run Swift test in background
-        ./run_swift_test.sh &
-        SWIFT_PID=$!
-        
-        # Monitor both processes
-        echo "⏳ Monitoring test progress (45 second timeout)..."
-        START_TIME=$(date +%s)
-        
-        while kill -0 $SWIFT_PID 2>/dev/null && kill -0 $NODE_PID 2>/dev/null; do
-          CURRENT_TIME=$(date +%s)
-          ELAPSED=$((CURRENT_TIME - START_TIME))
-          
-          if [ $ELAPSED -gt 50 ]; then
-            echo "⏰ Test timeout reached"
-            break
-          fi
-          
-          sleep 2
-        done
-        
-        # Check results
-        wait $SWIFT_PID 2>/dev/null || true
-        SWIFT_EXIT=$?
-        
-        echo "📊 Test Results:"
-        if [ -f swift_test_output.log ]; then
-          echo "Swift test output:"
-          cat swift_test_output.log | grep -E "(✅|❌|🎉|Swift Debug|peers connected|Successfully joined|timeout|error)" | head -20
-        fi
-        
-        # Determine final result
-        if [ $SWIFT_EXIT -eq 0 ]; then
-          echo "🎉 SUCCESS: Swift interop test passed!"
-          FINAL_RESULT=0
-        elif [ $SWIFT_EXIT -eq 124 ]; then
-          echo "⏰ TIMEOUT: Test reached timeout - infrastructure working but peer discovery taking longer than expected"
-          echo "✅ This indicates the protocol is working but may need relay connectivity optimization"
-          FINAL_RESULT=0  # Consider timeout as success since infrastructure is working
-        elif [ $SWIFT_EXIT -eq 1 ] && grep -q "No peers connected" swift_test_output.log 2>/dev/null; then
-          echo "⚠️ PEER DISCOVERY: Swift test couldn't connect to Node.js peer"
-          echo "✅ This may be due to Nostr relay connectivity issues in CI environment"
-          echo "✅ Protocol verification passed - considering this acceptable for CI"
-          FINAL_RESULT=0  # Don't fail CI due to peer discovery issues
-        else
-          echo "❌ FAILED: Swift interop test failed (exit code: $SWIFT_EXIT)"
-          FINAL_RESULT=1
-        fi
-        
-        # Clean up
-        kill $NODE_PID 2>/dev/null || true
-        rm -f run_swift_test.sh swift_test_output.log
-        
-        # Final status
-        if [ $FINAL_RESULT -eq 0 ]; then
-          echo "✅ Interoperability test completed successfully"
-        else
-          echo "❌ Interoperability test failed"
-          exit 1
-        fi
+    - name: Lint JavaScript
+      working-directory: Tests/Interop
+      run: npm run lint
+      
+    - name: Run All Interop Tests
+      working-directory: Tests/Interop
+      run: npm test

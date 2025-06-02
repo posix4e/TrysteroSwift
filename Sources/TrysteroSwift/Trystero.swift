@@ -1,55 +1,59 @@
 import Foundation
+@preconcurrency import WebRTC
 
-public class Trystero {
-    public static func joinRoom(config: RoomConfig, roomId: String) throws -> TrysteroRoom {
-        let relays = config.relays ?? ["wss://relay.damus.io"]
-        let appId = config.appId ?? ""
-        return try TrysteroRoom(roomId: roomId, relays: relays, appId: appId)
+/// Main entry point matching Trystero.js API
+public enum Trystero {
+    /// Join a room using Nostr strategy (matching trystero/nostr)
+    @MainActor
+    public static func joinRoom(_ config: Config, _ namespace: String) -> Room {
+        return Room(config: config, namespace: namespace)
     }
 }
 
-public struct RoomConfig {
-    public let relays: [String]?
-    public let password: String?
-    public let appId: String?
-    
-    public init(relays: [String]? = nil, password: String? = nil, appId: String? = nil) {
-        self.relays = relays
-        self.password = password
+/// Configuration matching Trystero.js options
+public struct Config {
+    public let appId: String
+    public var relayUrls: [String]?
+    public var relayRedundancy: Int
+    public var rtcConfig: TrysteroRTCConfiguration?
+
+    public init(
+        appId: String,
+        relayUrls: [String]? = nil,
+        relayRedundancy: Int = 2,
+        rtcConfig: TrysteroRTCConfiguration? = nil
+    ) {
         self.appId = appId
+        self.relayUrls = relayUrls
+        self.relayRedundancy = relayRedundancy
+        self.rtcConfig = rtcConfig
     }
 }
 
-public extension TrysteroRoom {
-    func onPeerJoin(_ handler: @escaping (String) -> Void) {
-        self.peerJoinHandler = handler
+/// WebRTC configuration wrapper to avoid naming conflicts
+public struct TrysteroRTCConfiguration: Sendable {
+    public let iceServers: [TrysteroIceServer]
+
+    public init(iceServers: [TrysteroIceServer] = TrysteroIceServer.defaults) {
+        self.iceServers = iceServers
     }
-    
-    func onPeerLeave(_ handler: @escaping (String) -> Void) {
-        self.peerLeaveHandler = handler
-    }
-    
-    func onData(_ handler: @escaping (Data, String) -> Void) {
-        self.dataHandler = handler
-    }
-    
-    func onWebRTCConnecting(_ handler: @escaping (String) -> Void) {
-        self.webrtcConnectingHandler = handler
-    }
-    
-    func onWebRTCConnected(_ handler: @escaping (String) -> Void) {
-        self.webrtcConnectedHandler = handler
-    }
-    
-    func onWebRTCDisconnected(_ handler: @escaping (String) -> Void) {
-        self.webrtcDisconnectedHandler = handler
-    }
-    
-    func getPeers() -> [String] {
-        return Array(self.connectedPeers)
-    }
-    
-    var ownPeerId: String {
-        return self.nostrClient.keyPair.publicKey
+}
+
+public struct TrysteroIceServer: Sendable {
+    public let urls: [String]
+    public let username: String?
+    public let credential: String?
+
+    public static let defaults = [
+        TrysteroIceServer(urls: ["stun:stun.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun1.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun2.l.google.com:19302"], username: nil, credential: nil),
+        TrysteroIceServer(urls: ["stun:stun.cloudflare.com:3478"], username: nil, credential: nil)
+    ]
+
+    public init(urls: [String], username: String? = nil, credential: String? = nil) {
+        self.urls = urls
+        self.username = username
+        self.credential = credential
     }
 }
