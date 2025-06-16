@@ -14,6 +14,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     // Reverse mapping for thread-safe peer ID lookup
     private var peerConnections: [ObjectIdentifier: String] = [:]
     private var isJoined = false
+    private var presenceTimer: Timer?
+    // Connection timeout tracking
+    private var connectionTimeouts: [String: Timer] = [:]
     
     // Event handlers
     internal var peerJoinHandler: ((String) -> Void)?
@@ -48,6 +51,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         try await nostrClient.subscribe(to: roomId)
         try await announcePresence()
         
+        // Start periodic presence announcements (every 60 seconds)
+        startPresenceTimer()
+        
         isJoined = true
         print("🔍 [Swift Debug] Successfully joined room: \(roomId)")
     }
@@ -55,6 +61,7 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     public func leave() async {
         guard isJoined else { return }
         
+        stopPresenceTimer()
         await nostrClient.disconnect()
         closePeerConnections()
         isJoined = false
@@ -78,6 +85,56 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         let presenceSignal = WebRTCSignal.presence(peerId: nostrClient.keyPair.publicKey)
         try await nostrClient.publishSignal(presenceSignal, roomId: roomId, targetPeer: nil)
         print("🔍 [Swift Debug] Presence announcement sent successfully")
+    }
+    
+    private func startPresenceTimer() {
+        stopPresenceTimer() // Stop any existing timer
+        
+        presenceTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
+            guard let self = self, self.isJoined else { return }
+            
+            Task {
+                do {
+                    try await self.announcePresence()
+                } catch {
+                    print("🔍 [Swift Debug] Failed to send periodic presence: \(error)")
+                }
+            }
+        }
+        
+        print("🔍 [Swift Debug] Started presence timer (60s intervals)")
+    }
+    
+    private func stopPresenceTimer() {
+        presenceTimer?.invalidate()
+        presenceTimer = nil
+        print("🔍 [Swift Debug] Stopped presence timer")
+    }
+    
+    private func startConnectionTimeout(for peerId: String) {
+        // Clear any existing timeout
+        connectionTimeouts[peerId]?.invalidate()
+        
+        // Set new timeout (30 seconds)
+        connectionTimeouts[peerId] = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
+            print("⏰ [Swift Debug] Connection timeout for peer \(String(peerId.prefix(8)))...")
+            self?.handleConnectionTimeout(peerId: peerId)
+        }
+        
+        print("⏰ [Swift Debug] Started connection timeout for \(String(peerId.prefix(8)))... (30s)")
+    }
+    
+    internal func clearConnectionTimeout(for peerId: String) {
+        connectionTimeouts[peerId]?.invalidate()
+        connectionTimeouts.removeValue(forKey: peerId)
+    }
+    
+    private func handleConnectionTimeout(peerId: String) {
+        print("❌ [Swift Debug] WebRTC connection failed for \(String(peerId.prefix(8)))... (timeout)")
+        cleanupPeer(peerId)
+        
+        // Could add retry logic here in the future
+        // For now, just clean up the failed connection
     }
     
     private func handleWebRTCSignalSync(_ signal: WebRTCSignal, from fromPeer: String) {
@@ -138,7 +195,12 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         // Clean up reverse mapping first
         if let peerConnection = peers[peerId] {
             peerConnections.removeValue(forKey: ObjectIdentifier(peerConnection))
+            peerConnection.close()
         }
+        
+        // Clear connection timeout
+        connectionTimeouts[peerId]?.invalidate()
+        connectionTimeouts.removeValue(forKey: peerId)
         
         peers.removeValue(forKey: peerId)
         dataChannels.removeValue(forKey: peerId)
@@ -151,6 +213,12 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
     }
     
     private func closePeerConnections() {
+        // Clear all connection timeouts
+        for timer in connectionTimeouts.values {
+            timer.invalidate()
+        }
+        connectionTimeouts.removeAll()
+        
         for (peerId, peerConnection) in peers {
             peerConnection.close()
             if connectedPeers.remove(peerId) != nil {
@@ -194,6 +262,9 @@ public final class TrysteroRoom: NSObject, RTCPeerConnectionDelegate, RTCDataCha
         connectedPeers.insert(peerId)
         peerJoinHandler?(peerId)
         print("✅ [Swift Debug] Peer \(String(peerId.prefix(8)))... joined room")
+        
+        // Set connection timeout (30 seconds)
+        startConnectionTimeout(for: peerId)
         
         // Only create offer if our peer ID is lexicographically smaller (prevents both sides offering)
         let ourPeerId = nostrClient.keyPair.publicKey

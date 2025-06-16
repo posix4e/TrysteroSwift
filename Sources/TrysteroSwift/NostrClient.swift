@@ -2,6 +2,10 @@ import Foundation
 import NostrClient
 import Nostr
 import CryptoKit
+import Security
+#if os(iOS) || os(tvOS) || os(watchOS)
+import UIKit
+#endif
 
 class TrysteroNostrClient: NostrClientDelegate {
     private let client: NostrClient
@@ -20,9 +24,66 @@ class TrysteroNostrClient: NostrClientDelegate {
     init(relays: [String], appId: String = "") throws {
         self.relays = relays
         self.appId = appId
-        self.keyPair = try KeyPair()
+        
+        // Use persistent keypair based on appId for consistent peer identity
+        self.keyPair = try Self.getOrCreateKeyPair(for: appId)
+        
         self.client = NostrClient()
         self.client.delegate = self
+    }
+    
+    // Persistent keypair storage using Keychain (for consistent peer IDs)
+    private static func getOrCreateKeyPair(for appId: String) throws -> KeyPair {
+        // Generate device-specific but app-scoped identity
+        let deviceId = getDeviceIdentifier()
+        let keyId = "TrysteroSwift_\(deviceId)_\(appId.isEmpty ? "default" : appId)"
+        
+        // Try to load existing keypair from Keychain
+        if let existingKeyData = KeychainHelper.load(key: keyId),
+           let keyPairData = try? JSONDecoder().decode(KeyPairData.self, from: existingKeyData) {
+            print("🔑 [Swift Debug] Loaded existing keypair for appId: '\(appId)'")
+            return try KeyPair(hex: keyPairData.privateKey)
+        }
+        
+        // Create new keypair and store it
+        let newKeyPair = try KeyPair()
+        let keyPairData = KeyPairData(privateKey: newKeyPair.privateKey, publicKey: newKeyPair.publicKey)
+        let encodedData = try JSONEncoder().encode(keyPairData)
+        
+        KeychainHelper.save(key: keyId, data: encodedData)
+        print("🔑 [Swift Debug] Created and stored new keypair for appId: '\(appId)'")
+        
+        return newKeyPair
+    }
+    
+    // Get stable device identifier
+    private static func getDeviceIdentifier() -> String {
+        #if os(iOS) || os(tvOS) || os(watchOS)
+        // iOS: Use identifierForVendor (stable until all vendor apps uninstalled)
+        return UIDevice.current.identifierForVendor?.uuidString ?? "unknown-ios"
+        #elseif os(macOS)
+        // macOS: Use IOPlatformUUID (permanent hardware identifier)
+        let task = Process()
+        task.launchPath = "/usr/sbin/ioreg"
+        task.arguments = ["-d2", "-c", "IOPlatformExpertDevice"]
+        
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.launch()
+        task.waitUntilExit()
+        
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        if let output = String(data: data, encoding: .utf8),
+           let uuidRange = output.range(of: "\"IOPlatformUUID\" = \"") {
+            let uuidStart = output.index(uuidRange.upperBound, offsetBy: 0)
+            let uuidEnd = output.index(uuidStart, offsetBy: 36)
+            return String(output[uuidStart..<uuidEnd])
+        }
+        return "unknown-mac"
+        #else
+        // Other platforms: simple fallback
+        return "unknown-platform"
+        #endif
     }
     
     // MARK: - Trystero.js Compatibility Helpers
@@ -337,5 +398,55 @@ enum WebRTCSignal: Codable {
         }
         
         throw TrysteroError.invalidSignal
+    }
+}
+
+// MARK: - Persistent KeyPair Storage
+
+private struct KeyPairData: Codable {
+    let privateKey: String
+    let publicKey: String
+}
+
+private class KeychainHelper {
+    static func save(key: String, data: Data) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data
+        ]
+        
+        // Delete any existing item
+        SecItemDelete(query as CFDictionary)
+        
+        // Add new item
+        SecItemAdd(query as CFDictionary, nil)
+    }
+    
+    static func load(key: String) -> Data? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        
+        if status == errSecSuccess {
+            return result as? Data
+        }
+        
+        return nil
+    }
+    
+    static func delete(key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key
+        ]
+        
+        SecItemDelete(query as CFDictionary)
     }
 }

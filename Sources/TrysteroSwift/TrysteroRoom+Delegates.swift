@@ -34,6 +34,7 @@ extension TrysteroRoom {
         case .connected, .completed:
             if let peerId = peerId {
                 print("✅ [Swift Debug] Peer \(peerId) WebRTC connected")
+                clearConnectionTimeout(for: peerId)
                 webrtcConnectedHandler?(peerId)
                 // Note: peerJoinHandler already called in handlePeerPresence
             }
